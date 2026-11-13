@@ -2795,7 +2795,7 @@
       el('div', { className: 'cds-h2', style: { marginTop: 0 }, text: '关于这个项目' }),
       el('p', { text: '封面设计助手是一个安装在 DeepSeekHarness 里的本地插件：中转站生图、本地思源宋体排版、参考图学习、手动画布与抠图都在本机完成。安装、配置中转站和第一次使用说明见仓库 README。' }),
       el('div', { style: { display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '10px' } }, [
-        el('span', { className: 'cds-tag', text: '版本 v' + (state.version || '1.2.0') }),
+        el('span', { className: 'cds-tag', text: '版本 v' + (state.version || '1.2.1') }),
         el('span', { className: 'cds-tag', text: 'License: MIT' }),
         el('span', { className: 'cds-tag', text: '数据只存本机' }),
         el('span', { className: 'cds-tag', text: 'API Key 不回显' }),
