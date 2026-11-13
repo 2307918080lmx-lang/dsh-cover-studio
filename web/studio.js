@@ -2771,6 +2771,13 @@
       ]),
     ])
     page.appendChild(card)
+    page.appendChild(el('div', { className: 'cds-note cds-disclaimer', style: { marginTop: '16px' } }, [
+      el('div', { className: 'cds-h2', style: { marginTop: 0 }, text: '免责声明' }),
+      el('p', { text: '本插件是本地封面创作辅助工具，生成内容仅供学习、研究和个人创作参考。' }),
+      el('p', { text: '使用者应自行确认所用图片、字体、角色、商标、视频封面等素材的版权与授权，不得用于侵权、冒充、虚假宣传、违法内容或商业冒充。AI 生成结果可能存在偏差，发布前请人工审核。' }),
+      el('p', { text: '中转站 API 的费用、额度、稳定性和数据处理由使用者与对应服务商负责；插件不会把本地素材、项目数据或 API Key 上传到作者服务器。' }),
+      el('p', { text: '因使用本插件、第三方中转站或生成内容产生的一切后果由使用者自行承担，作者不对第三方服务、生成内容及使用结果承担责任。第三方开源组件与模型遵循各自许可证。' }),
+    ]))
     page.appendChild(el('div', { className: 'cds-note', style: { marginTop: '16px' } }, [
       el('div', { className: 'cds-h2', style: { marginTop: 0 }, text: '关于这个项目' }),
       el('p', { text: '封面设计助手是一个安装在 DeepSeekHarness 里的本地插件：中转站生图、本地思源宋体排版、参考图学习、手动画布与抠图都在本机完成。项目正在整理开源材料，暂未发布到 GitHub。' }),
