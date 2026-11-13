@@ -7,3 +7,7 @@
 - This file is used locally for personal cover creation. Keep the upstream notices if you redistribute the plugin or model.
 
 Runtime: `onnxruntime-node` (MIT), Microsoft ONNX Runtime.
+
+Other third-party components:
+- Fabric.js (MIT)
+- @napi-rs/canvas (MIT)

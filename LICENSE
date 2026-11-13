@@ -19,10 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-Third-party notices:
-- Silueta ONNX model from danielgatis/rembg (MIT); U²-Net (Apache-2.0).
-- onnxruntime-node (MIT).
-- Fabric.js (MIT).
-- @napi-rs/canvas (MIT).
-See assets/models/LICENSE-NOTICE.md for details.
