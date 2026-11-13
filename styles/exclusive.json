@@ -1,0 +1,305 @@
+{
+  "id": "exclusive",
+  "name": "默认风格 · 电影海报",
+  "tagline": "大字标题 / 层叠排版 / 电影质感 / 克制留白",
+  "summary": "一套通用的视频封面设计语言：以主体原画或干净主视觉为底，让大号中文标题成为画面主体；标题与人物形成层叠关系，副标题清楚可读；画面克制、简洁、有电影感，缩略图下也能一眼读清。",
+  "sources": {
+    "referenceCount": 0,
+    "font": "Source Han Serif SC Heavy（思源宋体 Heavy）"
+  },
+  "principles": [
+    "主体原画优先：人物、服装、构图关系来自用户提供的主视觉；AI 只做去字、扩图、补背景和压暗，不重画角色。",
+    "一张封面只用一个主视觉。禁止拼贴、双曝光、证物板、分屏、贴纸、素材堆叠。",
+    "标题是画面主体：主标题尽量大，优先 2 行，最多 3 行；字号随画幅和留白自适应。",
+    "标题可以压到人物边缘或身体，但不能压住脸、眼睛和关键动作。",
+    "副标题必须清楚可读，必要时拆成两行；禁止小到缩略图看不清。",
+    "不要红色横线/竖线。需要视觉锚点时只用细白线、短横线或自然暗部。",
+    "不要编号、集数、年份、英文小字、底部说明、版权字；封面只保留主标题和副标题两层文字。",
+    "标题区要有自然暗部或渐变，不能是一块空着的纯色/渐变侧栏。",
+    "缩略图 580px 宽仍要能读清；先保证大关系，再谈细节。",
+    "多张批量时版式必须拉开，不要同一模板换色。",
+    "横竖画幅都不拉伸原图；用生成模型扩图或重新构图，标题字号、行距和留白单独适配。"
+  ],
+  "typography": {
+    "serifFamily": "CoverSerif",
+    "sansFamily": "CoverSans",
+    "titleWeight": 900,
+    "titleSizeRatio": {
+      "min": 0.075,
+      "max": 0.145
+    },
+    "titleTracking": [
+      0.015,
+      0.06
+    ],
+    "titleLineHeight": [
+      0.96,
+      1.08
+    ],
+    "titleColors": {
+      "onDark": "#F7F3EA",
+      "onLight": "#0B0F14"
+    },
+    "subtitleSizeRatio": {
+      "min": 0.022,
+      "max": 0.034
+    },
+    "subtitleLineHeight": 1.5,
+    "subtitleColors": {
+      "onDark": "#E8EBEF",
+      "onLight": "#1A1D22"
+    },
+    "shadow": {
+      "color": "rgba(0,0,0,0.55)",
+      "blur": 26,
+      "offsetY": 9
+    },
+    "subtitleBar": {
+      "width": 3,
+      "gap": 22,
+      "color": "rgba(247,243,234,0.82)"
+    },
+    "maxTitleLines": 3,
+    "maxSubtitleLines": 2
+  },
+  "palette": {
+    "ink": "#0B0F14",
+    "paper": "#F7F3EA",
+    "ice": "#7FC4E6",
+    "deepBlue": "#2F6FA8",
+    "steel": "#AFC4D4",
+    "ember": "#C9312B"
+  },
+  "backgroundPrompt": "以用户提供的主体原画或主视觉为唯一人物来源。保留原角色的脸、发型、服装、画风和构图关系，不要让模型重画、新增或替换角色。清除原图中的所有文字、Logo、版权字、水印、集数、字幕和 UI。把画面扩展到目标画幅，用与原图一致的天空、背景、光影和笔触自然补齐。为{titleSide}的标题区留出干净、连贯的负空间，用自然暗部或环境光过渡，不要出现纯色色块、拼贴、双曝光、证物板、分屏或网格。整体克制、简洁、电影感、低饱和、细节清晰。画面中不要出现任何文字、字母、数字、标志。",
+  "negativePrompt": "text, Chinese characters, letters, numbers, logo, watermark, signature, credits, subtitle, UI, collage, scrapbook, double exposure, split screen, grid, sticker, extra characters, new people, redrawn faces, distorted hands, deformed anatomy, oversaturated, HDR, plastic skin, AI artifacts, low resolution, blurry",
+  "plannerRules": [
+    "用户给出的主标题和副标题必须原样保留；用户没给标题时不要编造。",
+    "同一批多张封面共用同一个主标题和副标题，差异只放在版式、背景处理、字体颜色、标题位置和氛围上。",
+    "每张必须指定不同的 layoutId；如果版式池不够，就在同一版式上改变标题位置、对齐、遮罩方向和字号。",
+    "背景提示词必须明确：保留主体、清除文字、扩展画幅、留出标题负空间。",
+    "不要在背景提示词里要求模型写中文；所有文字由本地排版写入。",
+    "标题颜色要根据背景明暗自动选择：深底用暖白，浅底用近黑；需要时加柔和投影。",
+    "不要红色横线。需要装饰时用细白线、短横线、自然暗部或轻微颗粒。",
+    "副标题最多两行；宁可放大字号也不要挤成一条小字。",
+    "横竖画幅不要拉伸原图；必须重新构图或让生成模型扩图。"
+  ],
+  "layoutRecipes": [
+    {
+      "id": "left-stack",
+      "name": "左侧两层大字",
+      "description": "标题在左，人物在右；标题区有自然暗部，副标题带细白竖线。最稳的主封面版式。",
+      "titleBox": {
+        "x": 0.055,
+        "y": 0.26,
+        "w": 0.52,
+        "h": 0.36
+      },
+      "subtitleBox": {
+        "x": 0.062,
+        "y": 0.715,
+        "w": 0.44,
+        "h": 0.15
+      },
+      "align": "left",
+      "titleSize": 0.118,
+      "gradient": "left",
+      "grade": "cool",
+      "subtitleBar": true,
+      "vertical": false,
+      "overlap": false,
+      "grain": 5,
+      "vignette": 0.16,
+      "titleColor": "auto"
+    },
+    {
+      "id": "vertical-duo",
+      "name": "竖排双列宋体",
+      "description": "主标题拆成两列竖排，人物在右；副标题在左下，细白线做锚点。适合作品名和情绪强的画面。",
+      "titleBox": {
+        "x": 0.07,
+        "y": 0.075,
+        "w": 0.33,
+        "h": 0.62
+      },
+      "subtitleBox": {
+        "x": 0.078,
+        "y": 0.83,
+        "w": 0.42,
+        "h": 0.13
+      },
+      "align": "left",
+      "titleSize": 0.13,
+      "gradient": "left",
+      "grade": "cool",
+      "subtitleBar": true,
+      "vertical": true,
+      "verticalColumns": 2,
+      "overlap": true,
+      "grain": 6,
+      "vignette": 0.2,
+      "titleColor": "auto"
+    },
+    {
+      "id": "bottom-title",
+      "name": "底部压字",
+      "description": "大标题压在画面下三分之一，底部自然暗部承托；人物在上方。适合群像和情绪收束。",
+      "titleBox": {
+        "x": 0.05,
+        "y": 0.61,
+        "w": 0.68,
+        "h": 0.24
+      },
+      "subtitleBox": {
+        "x": 0.058,
+        "y": 0.855,
+        "w": 0.54,
+        "h": 0.12
+      },
+      "align": "left",
+      "titleSize": 0.108,
+      "gradient": "bottom",
+      "grade": "neutral",
+      "subtitleBar": false,
+      "vertical": false,
+      "overlap": true,
+      "grain": 5,
+      "vignette": 0.14,
+      "titleColor": "auto"
+    },
+    {
+      "id": "center-overlap",
+      "name": "居中叠字",
+      "description": "标题居中，人物压住标题的一角；副标题在底部居中。标题和人物发生关系，不是左右分栏。",
+      "titleBox": {
+        "x": 0.12,
+        "y": 0.17,
+        "w": 0.76,
+        "h": 0.34
+      },
+      "subtitleBox": {
+        "x": 0.2,
+        "y": 0.8,
+        "w": 0.6,
+        "h": 0.13
+      },
+      "align": "center",
+      "titleSize": 0.1,
+      "gradient": "bottom",
+      "grade": "cool",
+      "subtitleBar": false,
+      "vertical": false,
+      "overlap": true,
+      "grain": 5,
+      "vignette": 0.12,
+      "titleColor": "auto"
+    },
+    {
+      "id": "top-title",
+      "name": "顶部大字",
+      "description": "标题在画面上沿，人物在下；浅色天空用近黑标题，深色背景用暖白。适合群像和开阔构图。",
+      "titleBox": {
+        "x": 0.045,
+        "y": 0.065,
+        "w": 0.72,
+        "h": 0.28
+      },
+      "subtitleBox": {
+        "x": 0.052,
+        "y": 0.37,
+        "w": 0.5,
+        "h": 0.1
+      },
+      "align": "left",
+      "titleSize": 0.105,
+      "gradient": "top",
+      "grade": "warm",
+      "subtitleBar": false,
+      "vertical": false,
+      "overlap": true,
+      "grain": 4,
+      "vignette": 0.1,
+      "titleColor": "auto"
+    },
+    {
+      "id": "right-title",
+      "name": "右置标题",
+      "description": "标题在右侧、右对齐，人物在左；打破常规左字右图，适合角色朝左的画面。",
+      "titleBox": {
+        "x": 0.45,
+        "y": 0.25,
+        "w": 0.5,
+        "h": 0.36
+      },
+      "subtitleBox": {
+        "x": 0.49,
+        "y": 0.715,
+        "w": 0.44,
+        "h": 0.14
+      },
+      "align": "right",
+      "titleSize": 0.108,
+      "gradient": "right",
+      "grade": "cool",
+      "subtitleBar": true,
+      "vertical": false,
+      "overlap": false,
+      "grain": 5,
+      "vignette": 0.16,
+      "titleColor": "auto"
+    },
+    {
+      "id": "edge-poster",
+      "name": "极简留白",
+      "description": "标题只占左上角，画面大面积留给官方主视觉；用一条短白线或自然暗部做锚点。",
+      "titleBox": {
+        "x": 0.06,
+        "y": 0.1,
+        "w": 0.36,
+        "h": 0.24
+      },
+      "subtitleBox": {
+        "x": 0.066,
+        "y": 0.39,
+        "w": 0.34,
+        "h": 0.08
+      },
+      "align": "left",
+      "titleSize": 0.088,
+      "gradient": "none",
+      "grade": "neutral",
+      "subtitleBar": false,
+      "vertical": false,
+      "overlap": false,
+      "grain": 4,
+      "vignette": 0.08,
+      "titleColor": "auto"
+    },
+    {
+      "id": "diagonal",
+      "name": "斜向构图",
+      "description": "标题压在左下或左中的斜向暗部上，人物从右上进入；比左右分栏更有动势，但仍然克制。",
+      "titleBox": {
+        "x": 0.06,
+        "y": 0.24,
+        "w": 0.52,
+        "h": 0.38
+      },
+      "subtitleBox": {
+        "x": 0.068,
+        "y": 0.7,
+        "w": 0.4,
+        "h": 0.13
+      },
+      "align": "left",
+      "titleSize": 0.115,
+      "gradient": "diagonal",
+      "grade": "cool",
+      "subtitleBar": true,
+      "vertical": false,
+      "overlap": true,
+      "grain": 6,
+      "vignette": 0.18,
+      "titleColor": "auto"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+# dsh-cover-studio —— DSH bundle patch
+#
+# 挂载声明：DSH 启动时按 bundle 层栈叠加各插件 patch，本文件把这一行插进配置树。
+# `name` 必须与 package.json 的 name 一致。
+- insert:
+    - id: dsh-cover-studio
+      name: dsh-cover-studio
+      config:
+        # 总开关。改成 false 就完全不注册页面按钮、HTTP 路由和 agent 工具。
+        enabled: true

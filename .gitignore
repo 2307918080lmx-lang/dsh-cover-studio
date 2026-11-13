@@ -1,0 +1,27 @@
+# dependencies
+node_modules/
+
+# local development and test data
+.dev/
+tmp/
+coverage/
+
+# generated covers / exports
+out/
+output/
+*.cover.png
+*.cover.jpg
+
+# logs and local secrets (never commit)
+*.log
+.env
+.env.*
+secrets.json
+*.local.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+assets/models/silueta.onnx

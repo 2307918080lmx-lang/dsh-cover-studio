@@ -1,0 +1,56 @@
+{
+  "name": "dsh-cover-studio",
+  "version": "1.2.0",
+  "description": "DSH 视频封面设计助手：中转站生图 + 本地思源宋体排版，支持单张封面精确复刻、保持内容改比例、参考图学习、手动画布与抠图。",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "icon": "./icon.svg",
+  "scripts": {
+    "dev": "node scripts/dev-server.mjs",
+    "check": "node --check index.js && node --check lib/server.js && node --check lib/generate.js && node --check web/studio.js",
+    "fetch-model": "node scripts/fetch-model.mjs"
+  },
+  "files": [
+    "index.js",
+    "lib",
+    "web",
+    "styles",
+    "assets",
+    "scripts",
+    "locale/*.json",
+    "icon.svg",
+    "cordis.patch.yml",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "SECURITY.md"
+  ],
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "cover",
+    "thumbnail",
+    "video-cover",
+    "bilibili"
+  ],
+  "author": "明代宗",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "dependencies": {
+    "@napi-rs/canvas": "^1.0.13",
+    "onnxruntime-node": "1.20.1"
+  }
+}

@@ -1,0 +1,250 @@
+[
+  {
+    "id": "official-hero",
+    "name": "左标题 · 官方原画",
+    "tagline": "最稳的主封面：官方原画 + 左侧大标题",
+    "description": "一张官方主视觉铺满画面，标题在左、人物在右，左侧用自然暗部或渐变承托。适合大多数番剧、影评和幕后杂谈。",
+    "layoutPool": [
+      "left-stack",
+      "diagonal",
+      "bottom-title"
+    ],
+    "palette": [
+      "#0B0F14",
+      "#F7F3EA",
+      "#7FC4E6"
+    ],
+    "grade": "cool",
+    "accent": "none",
+    "prompt": "官方动画主视觉海报感，单幅构图，人物完整，背景自然延伸，左侧留出连贯的标题负空间，低饱和、电影感、干净。",
+    "negativePrompt": "collage, split screen, double exposure, red lines, extra text, logo, watermark, grid, sticker",
+    "typography": {
+      "titleSize": 0.118,
+      "titleTracking": 0.025,
+      "titleColor": "auto"
+    }
+  },
+  {
+    "id": "vertical-serif",
+    "name": "竖排双列",
+    "tagline": "两列竖排大字，人物与标题层叠",
+    "description": "主标题拆成两列竖排，像书籍/海报一样压在左侧；人物在右，标题可以压到人物边缘。适合作品名、情绪强的单集或完结回。",
+    "layoutPool": [
+      "vertical-duo"
+    ],
+    "palette": [
+      "#081018",
+      "#F7F3EA",
+      "#6FB7D8"
+    ],
+    "grade": "cool",
+    "accent": "thin-bar",
+    "prompt": "深色电影感背景，人物在右侧，左侧留出两列竖向负空间，环境光从人物一侧打过来，克制、安静、有呼吸感。",
+    "negativePrompt": "collage, split screen, double exposure, red lines, extra text, logo, watermark, grid, sticker",
+    "typography": {
+      "titleSize": 0.13,
+      "titleTracking": 0.03,
+      "titleColor": "auto"
+    }
+  },
+  {
+    "id": "cinema-bottom",
+    "name": "底部压字",
+    "tagline": "下三分之一压大标题，像电影海报",
+    "description": "标题压在画面下三分之一，底部自然暗部承托；人物在上方。适合群像、情绪收束和电影感强的题材。",
+    "layoutPool": [
+      "bottom-title",
+      "center-overlap"
+    ],
+    "palette": [
+      "#0A0D12",
+      "#F4EFE4",
+      "#9FB6C6"
+    ],
+    "grade": "neutral",
+    "accent": "none",
+    "prompt": "电影宽银幕海报，人物位于上三分之二，底部形成自然暗部，画面有轻微胶片颗粒和体积光，克制、庄重。",
+    "negativePrompt": "collage, split screen, double exposure, red lines, extra text, logo, watermark, grid, sticker",
+    "typography": {
+      "titleSize": 0.106,
+      "titleTracking": 0.02,
+      "titleColor": "auto"
+    }
+  },
+  {
+    "id": "center-overlap",
+    "name": "居中叠字",
+    "tagline": "标题居中，人物压住标题",
+    "description": "标题居中放在画面上半部，人物从前景压住标题的一角；副标题底部居中。适合单人或双人主视觉，冲击力强。",
+    "layoutPool": [
+      "center-overlap",
+      "top-title"
+    ],
+    "palette": [
+      "#0B0F14",
+      "#F7F3EA",
+      "#C9312B"
+    ],
+    "grade": "cool",
+    "accent": "none",
+    "prompt": "人物从前景进入画面，压住标题区域的一角；背景简洁、有电影光，标题区形成自然暗部，不要额外装饰。",
+    "negativePrompt": "collage, split screen, double exposure, red lines, extra text, logo, watermark, grid, sticker",
+    "typography": {
+      "titleSize": 0.102,
+      "titleTracking": 0.02,
+      "titleColor": "auto"
+    }
+  },
+  {
+    "id": "top-banner",
+    "name": "顶部大字",
+    "tagline": "标题横跨画面上沿，群像在下",
+    "description": "标题在画面上沿横排，人物群像在下；浅色天空用近黑标题，深色背景用暖白。适合群像、盘点、总集篇。",
+    "layoutPool": [
+      "top-title",
+      "center-overlap"
+    ],
+    "palette": [
+      "#0B0F14",
+      "#F7F3EA",
+      "#8AC7E4"
+    ],
+    "grade": "warm",
+    "accent": "none",
+    "prompt": "开阔的官方群像主视觉，天空/远景延伸到画面上沿，顶部留出干净的横向标题区，人物在下半部，光线自然。",
+    "negativePrompt": "collage, split screen, double exposure, red lines, extra text, logo, watermark, grid, sticker",
+    "typography": {
+      "titleSize": 0.1,
+      "titleTracking": 0.025,
+      "titleColor": "auto"
+    }
+  },
+  {
+    "id": "right-tension",
+    "name": "右置标题",
+    "tagline": "人物在左，标题在右",
+    "description": "把常规的左字右图反过来：人物在左、标题在右并右对齐。适合角色朝左、视线向左的画面，打破模板感。",
+    "layoutPool": [
+      "right-title",
+      "diagonal"
+    ],
+    "palette": [
+      "#0B0F14",
+      "#F7F3EA",
+      "#7FC4E6"
+    ],
+    "grade": "cool",
+    "accent": "thin-bar",
+    "prompt": "人物在画面左侧、朝左或视线向左，右侧留出连贯的标题负空间，背景自然延伸，低饱和电影感。",
+    "negativePrompt": "collage, split screen, double exposure, red lines, extra text, logo, watermark, grid, sticker",
+    "typography": {
+      "titleSize": 0.108,
+      "titleTracking": 0.025,
+      "titleColor": "auto"
+    }
+  },
+  {
+    "id": "minimal-poster",
+    "name": "极简留白",
+    "tagline": "大面积留白，标题只占一角",
+    "description": "画面大部分留给官方主视觉和留白，标题只占左上角或一角；用自然暗部、短白线或轻微颗粒做锚点。适合单人、安静、高级感。",
+    "layoutPool": [
+      "edge-poster",
+      "top-title"
+    ],
+    "palette": [
+      "#0B0F14",
+      "#F7F3EA",
+      "#B9CBD6"
+    ],
+    "grade": "neutral",
+    "accent": "short-line",
+    "prompt": "极简单人海报，主体居中或偏右，大面积干净留白，背景有细腻的空气感/颗粒，光线柔和，克制、高级。",
+    "negativePrompt": "collage, split screen, double exposure, red lines, extra text, logo, watermark, grid, sticker, clutter",
+    "typography": {
+      "titleSize": 0.088,
+      "titleTracking": 0.04,
+      "titleColor": "auto"
+    }
+  },
+  {
+    "id": "dark-documentary",
+    "name": "黑底冷光",
+    "tagline": "黑底、冷光、纪录片感",
+    "description": "整体压暗到黑蓝，人物从冷光里出来，标题用暖白宋体。适合幕后、制作、纪实、深度解说。",
+    "layoutPool": [
+      "left-stack",
+      "bottom-title",
+      "diagonal"
+    ],
+    "palette": [
+      "#05080C",
+      "#F2EEE4",
+      "#5C93B8"
+    ],
+    "grade": "cool",
+    "accent": "short-line",
+    "prompt": "黑蓝底、冷光、低照度、纪录片质感，人物从阴影里被一束冷光照亮，背景有雾气和细微颗粒，标题区自然压暗。",
+    "negativePrompt": "collage, split screen, double exposure, red lines, extra text, logo, watermark, grid, sticker, bright colorful",
+    "typography": {
+      "titleSize": 0.112,
+      "titleTracking": 0.025,
+      "titleColor": "auto"
+    }
+  },
+  {
+    "id": "warm-film",
+    "name": "暖色胶片",
+    "tagline": "暖色、逆光、胶片颗粒",
+    "description": "夕阳/暖光/逆光，人物边缘有光晕，整体像胶片剧照；标题用暖白或近黑。适合治愈、青春、回忆、完结回。",
+    "layoutPool": [
+      "top-title",
+      "bottom-title",
+      "edge-poster"
+    ],
+    "palette": [
+      "#17110D",
+      "#FBF1DE",
+      "#D9905C"
+    ],
+    "grade": "warm",
+    "accent": "none",
+    "prompt": "暖色胶片剧照，夕阳逆光，人物边缘有柔和光晕，空气里有细微颗粒和暖尘，背景自然虚化，克制、怀旧、温柔。",
+    "negativePrompt": "collage, split screen, double exposure, red lines, extra text, logo, watermark, grid, sticker, cold blue",
+    "typography": {
+      "titleSize": 0.102,
+      "titleTracking": 0.025,
+      "titleColor": "auto"
+    }
+  },
+  {
+    "id": "custom",
+    "name": "自定义风格",
+    "tagline": "按你的描述自由设计",
+    "description": "在下面的输入框里描述你想要的构图、气质、配色或参考方向；主模型会按你的描述重新组织版式和背景，不再套固定模板。",
+    "layoutPool": [
+      "left-stack",
+      "vertical-duo",
+      "bottom-title",
+      "center-overlap",
+      "top-title",
+      "right-title",
+      "edge-poster",
+      "diagonal"
+    ],
+    "palette": [
+      "#0B0F14",
+      "#F7F3EA",
+      "#7FC4E6"
+    ],
+    "grade": "neutral",
+    "accent": "none",
+    "prompt": "按照用户的自定义方向设计；仍然只用一张官方主视觉，不要拼贴和堆素材，文字由本地排版写入。",
+    "negativePrompt": "collage, split screen, double exposure, red lines, extra text, logo, watermark, grid, sticker",
+    "typography": {
+      "titleSize": 0.108,
+      "titleTracking": 0.025,
+      "titleColor": "auto"
+    }
+  }
+]
