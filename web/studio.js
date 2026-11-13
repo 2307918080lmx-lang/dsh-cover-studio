@@ -75,6 +75,12 @@
     toastTimer: null,
     refreshedAt: 0,
     version: '',
+    repoUrl: 'https://github.com/2307918080lmx-lang/dsh-cover-studio',
+    updateToken: '',
+    update: null,
+    updateBusy: false,
+    updateCheckedAt: 0,
+    updateNotified: false,
     errors: [],
     creatorRefreshedAt: 0,
   }
@@ -499,6 +505,8 @@
       state.models = data.models || null
       state.fonts = (data.settings && data.settings.customFonts) || []
       state.version = data.version || ''
+      state.repoUrl = data.repoUrl || state.repoUrl
+      state.updateToken = data.updateToken || state.updateToken
       if (data.creator && data.creator.name && data.creator.uid) {
         CREATOR = Object.freeze({ ...CREATOR, ...data.creator, immutable: true })
       }
@@ -522,6 +530,9 @@
       renderNav()
       renderFoot()
       renderPage()
+      if (!state.updateCheckedAt || Date.now() - state.updateCheckedAt > 30 * 60 * 1000) {
+        setTimeout(function () { if (!state.updateBusy) checkUpdate(false) }, 900)
+      }
       if (state.jobId && state.job && !state.jobTimer && (state.job.status === 'running' || state.job.status === 'queued')) pollJob(state.jobId)
     } catch (err) {
       state.loaded = false
@@ -541,7 +552,124 @@
     state.footEl.appendChild(el('div', { className: 'cds-chip' }, [el('span', { className: 'cds-dot ' + (dshOk ? 'on' : 'warn') }), el('span', { text: (mm.mode === 'custom' ? (mm.customKeySet ? '自定义主模型' : '自定义主模型（未填 Key）') : 'DSH 主模型') + ' · ' + (mm.model || 'deepseek-flash') })]))
     state.footEl.appendChild(el('div', { className: 'cds-chip' }, [el('span', { className: 'cds-dot ' + (relay && relay.keySet ? 'on' : 'warn') }), el('span', { text: relay ? relay.name + (relay.keySet ? '' : ' · 未填 Key') : '未配置中转站' })]))
     state.footEl.appendChild(el('div', { className: 'cds-chip' }, [el('span', { className: 'cds-dot on' }), el('span', { text: '默认风格已加载' })]))
-    if (state.version) state.footEl.appendChild(el('div', { className: 'cds-chip', style: { cursor: 'pointer' }, title: '查看制作人与项目信息', onclick: function () { switchTab('producer') } }, [el('span', { className: 'cds-dot on' }), el('span', { text: 'v' + state.version + ' · 制作人 ' + CREATOR.name })]))
+    var upd = state.update || {}
+    var versionText = 'v' + (state.version || '1.3.0')
+    if (state.updateBusy) versionText += ' · 检查中…'
+    else if (upd.hasUpdate) versionText += ' → v' + upd.latestVersion
+    else if (upd.ok) versionText += ' · 已是最新'
+    else versionText += ' · 检查更新'
+    state.footEl.appendChild(el('div', {
+      className: 'cds-chip',
+      style: { cursor: 'pointer' },
+      title: upd.hasUpdate ? '发现新版本，点击更新' : '点击检查更新',
+      onclick: function () { openUpdateDialog(!upd.hasUpdate) },
+    }, [el('span', { className: 'cds-dot ' + (upd.hasUpdate ? 'warn' : (upd.ok ? 'on' : '')) }), el('span', { text: versionText })]))
+    state.footEl.appendChild(el('div', { className: 'cds-chip', style: { cursor: 'pointer' }, title: '查看制作人信息', onclick: function () { switchTab('producer') } }, [el('span', { className: 'cds-dot on' }), el('span', { text: '制作人 ' + CREATOR.name })]))
+  }
+
+  async function checkUpdate(force) {
+    if (state.updateBusy) return
+    state.updateBusy = true
+    if (force) state.update = null
+    renderFoot()
+    try {
+      var data = await api('/update/check' + (force ? '?force=1' : ''))
+      state.update = data
+      state.updateCheckedAt = Date.now()
+      if (data.hasUpdate && !state.updateNotified) {
+        state.updateNotified = true
+        toast('发现新版本 v' + data.latestVersion + '，点左下角版本号更新')
+      }
+    } catch (err) {
+      state.update = { ok: false, currentVersion: state.version, latestVersion: state.version, hasUpdate: false, error: err.message }
+      state.updateCheckedAt = Date.now()
+      if (force) toast('检查更新失败：' + err.message)
+    } finally {
+      state.updateBusy = false
+      renderFoot()
+    }
+  }
+
+  async function openUpdateDialog(force) {
+    if (state.updateBusy) { toast('正在检查更新…'); return }
+    if (!state.update || force) {
+      toast('正在检查更新…')
+      await checkUpdate(true)
+    }
+    var u = state.update
+    if (!u) return
+    var modal = el('div', { className: 'cds-modal' })
+    var close = function () { if (modal.parentNode) modal.parentNode.removeChild(modal) }
+    var repoUrl = safeHttpUrl(u.repoUrl || state.repoUrl || '')
+    var title = u.hasUpdate ? '发现新版本 v' + u.latestVersion : (u.ok ? '已是最新版本' : '检查更新失败')
+    var body = [
+      el('div', { className: 'cds-updateversions' }, [
+        el('div', {}, [el('div', { className: 'cds-label', text: '当前版本' }), el('div', { className: 'cds-updatemono', text: 'v' + (u.currentVersion || state.version || '?') })]),
+        el('div', {}, [el('div', { className: 'cds-label', text: '最新版本' }), el('div', { className: 'cds-updatemono', text: u.latestVersion ? 'v' + u.latestVersion : '未知' })]),
+      ]),
+      u.publishedAt ? el('div', { className: 'cds-hint', text: '发布时间：' + fmtDate(u.publishedAt) }) : null,
+      u.hasUpdate && u.notes ? el('div', { className: 'cds-updatenotes', text: String(u.notes).replace(/^#{1,6}\s+/gm, '') }) : null,
+      u.hasUpdate ? el('div', { className: 'cds-note', text: '更新会下载 GitHub 发布包并替换插件源码；项目、参考图、风格卡、API Key 和本机数据都不会改动。更新完成后需要重启 DSH。' }) : null,
+      u.error ? el('div', { className: 'cds-note', text: '检查失败：' + u.error + '。可以稍后重试，或直接打开 GitHub 仓库。' }) : null,
+    ]
+    var acts = [el('button', { className: 'cds-btn', onclick: close }, [el('span', { text: '关闭' })])]
+    if (repoUrl) acts.push(el('a', { className: 'cds-btn', href: repoUrl, target: '_blank', rel: 'noopener noreferrer' }, [icon('external'), el('span', { text: 'GitHub 仓库' })]))
+    acts.push(el('button', { className: 'cds-btn', onclick: function () { close(); openUpdateDialog(true) } }, [icon('refresh'), el('span', { text: '重新检查' })]))
+    if (u.hasUpdate) acts.push(el('button', { className: 'cds-btn primary', onclick: function () { applyPluginUpdate(u, close) } }, [icon('download'), el('span', { text: '更新到 v' + u.latestVersion })]))
+    var dlg = el('div', { className: 'cds-dialog', style: { maxWidth: '640px' } }, [
+      el('h3', { text: title }),
+      el('p', { text: u.hasUpdate ? '新版本已经发布，可以直接在插件内同步更新。' : (u.ok ? '当前插件已经是最新版本。' : '暂时无法连接 GitHub 检查更新。') }),
+    ].concat(body).concat([el('div', { className: 'cds-dialogacts' }, acts)]))
+    modal.appendChild(dlg)
+    modal.addEventListener('click', function (e) { if (e.target === modal) close() })
+    state.windowEl.appendChild(modal)
+  }
+
+  async function applyPluginUpdate(u, close) {
+    var ok = await confirmDialog('更新到 v' + u.latestVersion + '？', '会下载 GitHub 发布包并替换插件源码；项目、参考图、风格卡、API Key 和本机数据不受影响。更新完成后需要重启 DSH。', '开始更新')
+    if (!ok) return
+    if (close) close()
+    if (state.updateBusy) return
+    state.updateBusy = true
+    renderFoot()
+    toast('正在下载并安装 v' + u.latestVersion + '…')
+    try {
+      var data = await api('/update/apply', { method: 'POST', body: { version: u.latestVersion, token: state.updateToken } })
+      state.updateBusy = false
+      state.version = data.version || u.latestVersion
+      state.update = { ok: true, currentVersion: state.version, latestVersion: state.version, hasUpdate: false, checkedAt: new Date().toISOString() }
+      state.updateCheckedAt = Date.now()
+      renderFoot()
+      showUpdateDone(data)
+    } catch (err) {
+      state.updateBusy = false
+      renderFoot()
+      toast('更新失败：' + err.message)
+    }
+  }
+
+  function showUpdateDone(data) {
+    var modal = el('div', { className: 'cds-modal' })
+    var close = function () { if (modal.parentNode) modal.parentNode.removeChild(modal) }
+    var version = data.version || state.version || ''
+    var npmWarn = data.npmInstall && !data.npmInstall.skipped && !data.npmInstall.ok
+      ? '依赖安装失败：' + (data.npmInstall.error || '未知错误') + '。请在插件目录运行 npm install 后重启 DSH。'
+      : ''
+    var dlg = el('div', { className: 'cds-dialog', style: { maxWidth: '620px' } }, [
+      el('h3', { text: data.alreadyLatest ? '已是最新版本' : '更新完成 · v' + version }),
+      el('p', { text: data.alreadyLatest ? '当前插件已经是最新版本。' : '插件源码已替换。关闭并重新打开 DSH 后，新版本才会完全生效。' }),
+      npmWarn ? el('div', { className: 'cds-note', text: npmWarn }) : null,
+      data.backupDir ? el('details', { className: 'cds-ridref', style: { marginTop: '10px' } }, [
+        el('summary', { text: '查看更新前的备份位置' }),
+        el('div', { className: 'cds-hint', text: data.backupDir }),
+      ]) : null,
+      el('div', { className: 'cds-dialogacts' }, [
+        el('button', { className: 'cds-btn', onclick: close }, [el('span', { text: '稍后重启' })]),
+        el('button', { className: 'cds-btn primary', onclick: function () { close(); location.reload() } }, [icon('refresh'), el('span', { text: '刷新界面' })]),
+      ]),
+    ])
+    modal.appendChild(dlg)
+    state.windowEl.appendChild(modal)
   }
 
   function renderNav() {
@@ -2795,7 +2923,7 @@
       el('div', { className: 'cds-h2', style: { marginTop: 0 }, text: '关于这个项目' }),
       el('p', { text: '封面设计助手是一个安装在 DeepSeekHarness 里的本地插件：中转站生图、本地思源宋体排版、参考图学习、手动画布与抠图都在本机完成。安装、配置中转站和第一次使用说明见仓库 README。' }),
       el('div', { style: { display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '10px' } }, [
-        el('span', { className: 'cds-tag', text: '版本 v' + (state.version || '1.2.1') }),
+        el('span', { className: 'cds-tag', text: '版本 v' + (state.version || '1.3.0') }),
         el('span', { className: 'cds-tag', text: 'License: MIT' }),
         el('span', { className: 'cds-tag', text: '数据只存本机' }),
         el('span', { className: 'cds-tag', text: 'API Key 不回显' }),
