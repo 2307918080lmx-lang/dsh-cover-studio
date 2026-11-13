@@ -509,7 +509,13 @@
       if (!state.form.relayId || !state.settings.relays.some(function (r) { return r.id === state.form.relayId })) {
         state.form.relayId = state.settings.defaultRelayId
         state.form.model = state.settings.defaultModel
+      } else if (state.lastRelayId !== state.form.relayId || state.lastDefaultModel !== state.settings.defaultModel) {
+        var switched = state.settings.relays.find(function (r) { return r.id === state.form.relayId })
+        var preferred = state.form.relayId === state.settings.defaultRelayId ? state.settings.defaultModel : ''
+        state.form.model = preferred || (switched && (switched.defaultModel || (switched.models || [])[0])) || state.settings.defaultModel || state.form.model
       }
+      state.lastRelayId = state.form.relayId
+      state.lastDefaultModel = state.settings.defaultModel
       applyFormDefaults()
       if (!state.tab) state.tab = (state.settings.ui && state.settings.ui.lastTab) || 'create'
       if (!state.createMode) state.createMode = (state.settings.ui && state.settings.ui.createMode) || 'ai'
@@ -530,9 +536,9 @@
     clear(state.footEl)
     state.footEl.appendChild(el('div', { className: 'cds-navgroup', style: { padding: '0 2px 5px' }, text: 'STATUS / 状态' }))
     var mm = state.settings.mainModel || {}
-    var dshOk = mm.mode !== 'custom' ? !!mm.dshKeyAvailable : !!mm.customKeySet
+    var dshOk = mm.mode !== 'custom' ? !!(mm.dshLlmAvailable || mm.dshKeyAvailable) : !!mm.customKeySet
     var relay = state.settings.relays.find(function (r) { return r.id === state.settings.defaultRelayId }) || state.settings.relays[0]
-    state.footEl.appendChild(el('div', { className: 'cds-chip' }, [el('span', { className: 'cds-dot ' + (dshOk ? 'on' : 'warn') }), el('span', { text: (mm.mode === 'custom' ? '自定义主模型' : 'DSH 主模型') + ' · ' + (mm.model || 'deepseek-flash') })]))
+    state.footEl.appendChild(el('div', { className: 'cds-chip' }, [el('span', { className: 'cds-dot ' + (dshOk ? 'on' : 'warn') }), el('span', { text: (mm.mode === 'custom' ? (mm.customKeySet ? '自定义主模型' : '自定义主模型（未填 Key）') : 'DSH 主模型') + ' · ' + (mm.model || 'deepseek-flash') })]))
     state.footEl.appendChild(el('div', { className: 'cds-chip' }, [el('span', { className: 'cds-dot ' + (relay && relay.keySet ? 'on' : 'warn') }), el('span', { text: relay ? relay.name + (relay.keySet ? '' : ' · 未填 Key') : '未配置中转站' })]))
     state.footEl.appendChild(el('div', { className: 'cds-chip' }, [el('span', { className: 'cds-dot on' }), el('span', { text: '默认风格已加载' })]))
     if (state.version) state.footEl.appendChild(el('div', { className: 'cds-chip', style: { cursor: 'pointer' }, title: '查看制作人与项目信息', onclick: function () { switchTab('producer') } }, [el('span', { className: 'cds-dot on' }), el('span', { text: 'v' + state.version + ' · 制作人 ' + CREATOR.name })]))
@@ -1222,12 +1228,19 @@
       var data = await api('/relay/models', { method: 'POST', body: { relayId: relay.id } })
       if (data.ok && Array.isArray(data.models) && data.models.length) {
         relay.models = data.models
-        if (!state.form.model) state.form.model = data.models[0]
+        if (!state.form.model || data.models.indexOf(state.form.model) < 0) state.form.model = data.models[0]
+        if (!relay.defaultModel || data.models.indexOf(relay.defaultModel) < 0) relay.defaultModel = state.form.model
         state.settings.relays = state.settings.relays.map(function (r) { return r.id === relay.id ? relay : r })
         renderCreatePage()
-        toast('已读取 ' + data.models.length + ' 个模型')
+        try {
+          var relays = state.settings.relays.map(function (r) {
+            return { id: r.id, name: r.name, baseUrl: r.baseUrl, protocol: r.protocol, models: r.models, defaultModel: r.defaultModel, fallbackModels: r.fallbackModels, size169: r.size169, size43: r.size43, size916: r.size916, size11: r.size11, quality: r.quality, extraParams: r.extraParams }
+          })
+          await api('/state.json', { method: 'POST', body: { relays: relays } })
+        } catch {}
+        toast('已读取并保存 ' + data.models.length + ' 个模型')
       } else {
-        toast('这个站没有返回模型列表，可直接手填模型名')
+        toast(data.error || '这个站没有返回模型列表，可直接手填模型名')
       }
     } catch (err) { toast('读取失败：' + err.message) }
   }
@@ -2892,18 +2905,28 @@
         el('button', { 'data-on': s.mainModel.mode !== 'custom' ? '1' : '0', onclick: function () { s.mainModel.mode = 'dsh'; renderSettingsPage() } }, [el('span', { text: '跟随 DSH（推荐）' })]),
         el('button', { 'data-on': s.mainModel.mode === 'custom' ? '1' : '0', onclick: function () { s.mainModel.mode = 'custom'; renderSettingsPage() } }, [el('span', { text: '自定义 API' })]),
       ]),
-      s.mainModel.mode !== 'custom' ? el('div', { style: { marginTop: '10px' } }, [
-        el('div', { className: 'cds-row' }, [
-          el('div', { className: 'cds-field' }, [el('div', { className: 'cds-label', text: 'Provider' }), el('input', { className: 'cds-input', value: s.mainModel.provider, oninput: function (e) { s.mainModel.provider = e.target.value } })]),
-          el('div', { className: 'cds-field' }, [el('div', { className: 'cds-label', text: 'Model' }), el('input', { className: 'cds-input', value: s.mainModel.model, oninput: function (e) { s.mainModel.model = e.target.value } })]),
-        ]),
-        el('div', { className: 'cds-statusline ' + (s.mainModel.dshKeyAvailable ? 'ok' : 'warn') }, [el('span', { className: 'cds-dot ' + (s.mainModel.dshKeyAvailable ? 'on' : 'warn') }), el('span', { text: s.mainModel.dshKeyAvailable ? '已检测到 DSH 的 DeepSeek API 凭据，插件会直接复用。' : '没有检测到 DSH 凭据；如果生成失败，请改用自定义 API。' })]),
-        el('div', { style: { display: 'flex', gap: '8px', marginTop: '8px', flexWrap: 'wrap' } }, [
-          el('button', { className: 'cds-btn sm', onclick: testMain }, [icon('spark'), el('span', { text: '测试主模型' })]),
-          el('button', { className: 'cds-btn sm', onclick: loadMainModels }, [icon('refresh'), el('span', { text: '读取 DSH 模型列表' })]),
-        ]),
-        el('div', { id: 'cds-mainmodels', className: 'cds-hint' }, state.models && state.models.models && state.models.models.length ? [el('span', { text: '可用模型：' }), el('span', { text: state.models.models.map(function (m) { return typeof m === 'string' ? m : (m.id || m.name || '') }).join('、') })] : null),
-      ]) : el('div', { style: { marginTop: '10px' } }, [
+      s.mainModel.mode !== 'custom' ? (function () {
+        var dshModels = ((state.models && state.models.models) || []).map(function (m) { return typeof m === 'string' ? m : (m.id || m.name || '') }).filter(Boolean)
+        var dshReady = !!(s.mainModel.dshLlmAvailable || s.mainModel.dshKeyAvailable)
+        var statusText = s.mainModel.dshLlmAvailable
+          ? 'DSH 模型服务可用，插件会复用当前 DSH 模型，无需单独填 Key。'
+          : (s.mainModel.dshKeyAvailable ? '已检测到 DSH 直连凭据，可作为备用。' : '未检测到 DSH 模型服务：请确认插件已在 DSH 内启用，或改用自定义 API。')
+        return el('div', { style: { marginTop: '10px' } }, [
+          el('div', { className: 'cds-row' }, [
+            el('div', { className: 'cds-field' }, [el('div', { className: 'cds-label', text: 'Provider' }), el('input', { className: 'cds-input', value: s.mainModel.provider, oninput: function (e) { s.mainModel.provider = e.target.value } })]),
+            el('div', { className: 'cds-field' }, [el('div', { className: 'cds-label', text: 'Model' }), el('input', { className: 'cds-input', value: s.mainModel.model, oninput: function (e) { s.mainModel.model = e.target.value } })]),
+          ]),
+          el('div', { className: 'cds-statusline ' + (dshReady ? 'ok' : 'warn') }, [el('span', { className: 'cds-dot ' + (dshReady ? 'on' : 'warn') }), el('span', { text: statusText })]),
+          dshModels.length ? el('div', { className: 'cds-modelchips' }, dshModels.map(function (m) {
+            return el('button', { type: 'button', className: 'cds-modelchip', 'data-on': s.mainModel.model === m ? '1' : '0', title: '使用 ' + m, onclick: function () { s.mainModel.model = m; renderSettingsPage(); toast('已选择 ' + m + '，点「保存设置」生效') } }, [el('span', { text: m })])
+          })) : null,
+          el('div', { className: 'cds-hint', text: dshReady ? '封面生成可直接复用 DSH 当前模型；识图/参考分析还需要可用的视觉模型 Key。' : '封面生成需要 DSH 模型服务；如果当前是独立预览，请改用自定义 API。' }),
+          el('div', { style: { display: 'flex', gap: '8px', marginTop: '8px', flexWrap: 'wrap' } }, [
+            el('button', { className: 'cds-btn sm', onclick: testMain }, [icon('spark'), el('span', { text: '测试主模型' })]),
+            el('button', { className: 'cds-btn sm', onclick: loadMainModels }, [icon('refresh'), el('span', { text: '读取 DSH 模型列表' })]),
+          ]),
+        ])
+      })() : el('div', { style: { marginTop: '10px' } }, [
         el('div', { className: 'cds-row' }, [
           el('div', { className: 'cds-field' }, [el('div', { className: 'cds-label', text: 'Base URL' }), el('input', { className: 'cds-input', value: s.mainModel.baseUrl, placeholder: 'https://api.deepseek.com', oninput: function (e) { s.mainModel.baseUrl = e.target.value } })]),
           el('div', { className: 'cds-field' }, [el('div', { className: 'cds-label', text: 'Model' }), el('input', { className: 'cds-input', value: s.mainModel.model, placeholder: 'deepseek-flash', oninput: function (e) { s.mainModel.model = e.target.value } })]),
@@ -2912,6 +2935,7 @@
           el('div', { className: 'cds-field' }, [el('div', { className: 'cds-label', text: '识图模型' }), el('input', { className: 'cds-input', value: s.mainModel.visionModel, placeholder: 'deepseek-flash', oninput: function (e) { s.mainModel.visionModel = e.target.value } })]),
           el('div', { className: 'cds-field' }, [el('div', { className: 'cds-label', text: 'API Key' }), el('input', { className: 'cds-input', type: 'password', placeholder: s.mainModel.customKeySet ? '已保存，留空不修改' : 'sk-…', value: s.mainModelApiKey || '', oninput: function (e) { s.mainModelApiKey = e.target.value } })]),
         ]),
+        el('div', { className: 'cds-statusline ' + (s.mainModel.customKeySet || String(s.mainModelApiKey || '').trim() ? 'ok' : 'warn') }, [el('span', { className: 'cds-dot ' + (s.mainModel.customKeySet || String(s.mainModelApiKey || '').trim() ? 'on' : 'warn') }), el('span', { text: s.mainModel.customKeySet || String(s.mainModelApiKey || '').trim() ? '自定义主模型 Key 已填写。' : '还没有填写自定义 Key；生成时会自动回退到 DSH 模型。' })]),
         el('label', { className: 'cds-switch' }, [el('input', { type: 'checkbox', checked: !!s.clearMainKey, onchange: function (e) { s.clearMainKey = e.target.checked } }), el('span', { text: '清除已保存的自定义主模型 Key' })]),
         el('div', { style: { display: 'flex', gap: '8px', marginTop: '8px' } }, [el('button', { className: 'cds-btn sm', onclick: testMain }, [icon('spark'), el('span', { text: '测试主模型' })])]),
       ]),
@@ -2957,7 +2981,7 @@
           renderSettingsPage()
         } }, [icon('plus'), el('span', { text: '添加中转站' })]),
       ]),
-      el('div', { className: 'cds-hint', text: '支持 OpenAI Images 兼容的中转站。点常用服务商会自动填入接口地址、模型和尺寸，你只需要填自己的 API Key；也可以添加多个自定义中转站。Key 只保存在本机。' }),
+      el('div', { className: 'cds-hint', text: '支持 OpenAI Images 兼容的中转站。Base URL 填 API 接口地址，不是控制台网页地址，一般以 /v1 结尾（例如 https://api.example.com/v1）；填控制台地址会出现「测试 200 但没有模型」。Key 只保存在本机。' }),
       el('div', { className: 'cds-providers' }, IMAGE_PROVIDERS.map(function (p) {
         var present = (state.relayDraft || []).some(function (r) { return String(r.baseUrl || '').replace(/\/+$/, '') === p.baseUrl })
         return el('div', { className: 'cds-provider' + (present ? ' on' : '') }, [
@@ -3026,8 +3050,21 @@
               try { var data = await api('/relay/test', { method: 'POST', body: { relayId: r.id } }); toast((data.result.ok ? '连接正常：' : '连接失败：') + (data.result.note || data.result.error || '')) } catch (err) { toast(err.message) }
             } }, [icon('spark'), el('span', { text: '测试连接' })]),
             el('button', { className: 'cds-btn sm', onclick: async function () {
-              await saveSettings(true)
-              try { var data = await api('/relay/models', { method: 'POST', body: { relayId: r.id } }); if (data.models && data.models.length) { r.models = data.models; toast('已读取 ' + data.models.length + ' 个模型'); renderSettingsPage() } else toast('没有返回模型列表') } catch (err) { toast(err.message) }
+              var relayId = r.id
+              var saved = await saveSettings(true)
+              if (!saved) return
+              try {
+                var data = await api('/relay/models', { method: 'POST', body: { relayId: relayId } })
+                if (data.models && data.models.length) {
+                  var draft = (state.relayDraft || []).find(function (x) { return x.id === relayId })
+                  if (draft) {
+                    draft.models = data.models
+                    if (!draft.defaultModel || data.models.indexOf(draft.defaultModel) < 0) draft.defaultModel = data.models[0]
+                  }
+                  await saveSettings(true)
+                  toast('已读取并保存 ' + data.models.length + ' 个模型')
+                } else toast('这个站没有返回模型列表，可直接手填模型名')
+              } catch (err) { toast('读取失败：' + err.message) }
             } }, [icon('refresh'), el('span', { text: '读取模型' })]),
             el('label', { className: 'cds-switch' }, [el('input', { type: 'checkbox', checked: !!r.clearKey, onchange: function (e) { r.clearKey = e.target.checked } }), el('span', { text: '清除 Key' })]),
           ]),
@@ -3051,7 +3088,7 @@
     ]))
     side.appendChild(el('div', { className: 'cds-panel pad', style: { marginTop: '14px' } }, [
       el('div', { className: 'cds-h2', style: { marginTop: 0 }, text: '当前状态' }),
-      el('div', { className: 'cds-statusline ' + (state.settings.mainModel.dshKeyAvailable ? 'ok' : 'warn') }, [el('span', { className: 'cds-dot ' + (state.settings.mainModel.dshKeyAvailable ? 'on' : 'warn') }), el('span', { text: state.settings.mainModel.dshKeyAvailable ? 'DSH 主模型凭据可用' : 'DSH 主模型凭据未检测到' })]),
+      el('div', { className: 'cds-statusline ' + ((state.settings.mainModel.dshLlmAvailable || state.settings.mainModel.dshKeyAvailable) ? 'ok' : 'warn') }, [el('span', { className: 'cds-dot ' + ((state.settings.mainModel.dshLlmAvailable || state.settings.mainModel.dshKeyAvailable) ? 'on' : 'warn') }), el('span', { text: state.settings.mainModel.dshLlmAvailable ? 'DSH 主模型服务可用' : (state.settings.mainModel.dshKeyAvailable ? 'DSH 直连凭据可用' : 'DSH 主模型服务未检测到') })]),
       el('div', { className: 'cds-statusline' }, [el('span', { className: 'cds-dot' }), el('span', { text: '已保存中转站：' + state.settings.relays.filter(function (r) { return r.keySet }).length + ' / ' + state.settings.relays.length })]),
       el('div', { className: 'cds-statusline' }, [el('span', { className: 'cds-dot' }), el('span', { text: '项目：' + state.projects.length + ' · 参考图：' + referenceUploads().length })]),
     ]))
@@ -3267,7 +3304,16 @@
     try {
       var data = await api('/main/models')
       state.models = data
+      if (data.source === 'dsh') {
+        if (state.settings && state.settings.mainModel) state.settings.mainModel.dshLlmAvailable = true
+        if (state.settingsDraft) state.settingsDraft.mainModel.dshLlmAvailable = true
+      }
       var models = (data.models || []).map(function (m) { return typeof m === 'string' ? m : (m.id || m.name || '') }).filter(Boolean)
+      if (state.settingsDraft) {
+        var providers = (data.providers || []).map(function (p) { return typeof p === 'string' ? p : (p.id || p.name || '') }).filter(Boolean)
+        if (providers.length && providers.indexOf(state.settingsDraft.mainModel.provider) < 0) state.settingsDraft.mainModel.provider = providers[0]
+        if (models.length && (!state.settingsDraft.mainModel.model || models.indexOf(state.settingsDraft.mainModel.model) < 0)) state.settingsDraft.mainModel.model = models[0]
+      }
       toast(models.length ? '可用模型：' + models.join('、') : 'DSH 没有返回模型目录')
       renderSettingsPage()
     } catch (err) { toast(err.message) }
