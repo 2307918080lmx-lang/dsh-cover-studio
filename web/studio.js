@@ -534,7 +534,7 @@
     var relay = state.settings.relays.find(function (r) { return r.id === state.settings.defaultRelayId }) || state.settings.relays[0]
     state.footEl.appendChild(el('div', { className: 'cds-chip' }, [el('span', { className: 'cds-dot ' + (dshOk ? 'on' : 'warn') }), el('span', { text: (mm.mode === 'custom' ? '自定义主模型' : 'DSH 主模型') + ' · ' + (mm.model || 'deepseek-flash') })]))
     state.footEl.appendChild(el('div', { className: 'cds-chip' }, [el('span', { className: 'cds-dot ' + (relay && relay.keySet ? 'on' : 'warn') }), el('span', { text: relay ? relay.name + (relay.keySet ? '' : ' · 未填 Key') : '未配置中转站' })]))
-    state.footEl.appendChild(el('div', { className: 'cds-chip' }, [el('span', { className: 'cds-dot on' }), el('span', { text: '专属风格已加载' })]))
+    state.footEl.appendChild(el('div', { className: 'cds-chip' }, [el('span', { className: 'cds-dot on' }), el('span', { text: '默认风格已加载' })]))
     if (state.version) state.footEl.appendChild(el('div', { className: 'cds-chip', style: { cursor: 'pointer' }, title: '查看制作人与项目信息', onclick: function () { switchTab('producer') } }, [el('span', { className: 'cds-dot on' }), el('span', { text: 'v' + state.version + ' · 制作人 ' + CREATOR.name })]))
   }
 
@@ -642,7 +642,7 @@
     container.appendChild(el('button', { className: 'cds-exclusive', 'data-on': on ? '1' : '0', onclick: function () { toggleStyle('exclusive') } }, [
       el('div', { className: 'cds-ex-preview' }, [el('img', { src: API + '/assets/exclusive-preview.svg', alt: '' })]),
       el('div', { className: 'cds-ex-body' }, [
-        el('div', { className: 'cds-ex-kicker', text: 'EXCLUSIVE / 专属' }),
+        el('div', { className: 'cds-ex-kicker', text: 'DEFAULT / 默认' }),
         el('div', { className: 'cds-ex-name', text: ex.name }),
         el('div', { className: 'cds-ex-tag', text: ex.tagline }),
         el('div', { className: 'cds-ex-points' }, [
@@ -741,7 +741,7 @@
 
   function styleGroups() {
     var groups = [
-      { id: 'exclusive', name: '专属风格', hint: '你的固定设计 DNA', styles: [] },
+      { id: 'exclusive', name: '默认风格', hint: '插件自带的设计语言', styles: [] },
       { id: 'replica', name: '单张复刻卡', hint: '每张参考封面单独拆解，最适合复刻某一张', styles: [] },
       { id: 'section', name: '分区风格', hint: '多个分区封面归纳出的共性', styles: [] },
       { id: 'reference', name: '参考图学习', hint: '上传参考图后学习成的自定义风格', styles: [] },
@@ -769,7 +769,7 @@
         ? selected.slice(0, 5).map(function (s) {
           return el('button', { className: 'cds-stylechip', title: '取消选择', onclick: function () { toggleStyle(s.id) } }, [el('span', { text: s.name }), el('span', { className: 'cds-stylechip-x', text: '×' })])
         }).concat(selected.length > 5 ? [el('span', { className: 'cds-tag', text: '+' + (selected.length - 5) })] : [])
-        : [el('span', { className: 'cds-hint', text: '还没有选风格，默认使用专属风格' })]),
+        : [el('span', { className: 'cds-hint', text: '还没有选风格，默认使用「默认风格」' })]),
       el('div', { className: 'cds-spacer', style: { flex: 1 } }),
       el('button', { className: 'cds-btn ghost sm', onclick: function () {
         var anyClosed = groups.some(function (g) { return !state.styleGroups[g.id] })
@@ -1811,7 +1811,7 @@
       ]))
     }
     if (!referenceUploads().length) {
-      page.appendChild(el('div', { className: 'cds-emptygrid', text: '还没有参考图。上传后可以逐张分析，或让专属风格学习。' }))
+      page.appendChild(el('div', { className: 'cds-emptygrid', text: '还没有参考图。上传后可以逐张分析，或让默认风格学习。' }))
       state.mainEl.appendChild(page)
       return
     }
@@ -2572,11 +2572,11 @@
   function renderStylesPage() {
     clear(state.mainEl)
     var page = el('div', { className: 'cds-page' })
-    page.appendChild(pageHead('风格库', '专属风格不是另训一个模型，而是把你的旧封面和聊天偏好固化成设计 DNA + 版式配方，每次生成都作为强约束。'))
+    page.appendChild(pageHead('风格库', '默认风格不是另训一个模型，而是把版式、字体和标题规则固化成设计约束，每次生成都会遵循。'))
     var ex = state.exclusive || {}
     var exCard = el('div', { className: 'cds-panel pad', style: { marginBottom: '16px' } }, [
-      el('div', { className: 'cds-ex-kicker', text: 'EXCLUSIVE / 专属风格' }),
-      el('div', { style: { fontSize: '17px', fontWeight: '700', marginTop: '4px' }, text: ex.name || '专属风格' }),
+      el('div', { className: 'cds-ex-kicker', text: 'DEFAULT / 默认风格' }),
+      el('div', { style: { fontSize: '17px', fontWeight: '700', marginTop: '4px' }, text: ex.name || '默认风格' }),
       el('div', { className: 'cds-hint', text: ex.summary || '', style: { maxWidth: '820px', fontSize: '12px', color: 'var(--dsw-alias-label-secondary)' } }),
       el('div', { style: { display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '10px' } }, (ex.principles || []).slice(0, 6).map(function (p) { return el('span', { className: 'cds-tag', text: p }) })),
       el('div', { style: { display: 'flex', gap: '8px', marginTop: '13px', flexWrap: 'wrap' } }, [
@@ -2619,7 +2619,7 @@
       learnedStyles = [{
         id: 'exclusive',
         isExclusive: true,
-        name: (ex.name || '专属风格') + ' · 参考图强化',
+        name: (ex.name || '默认风格') + ' · 参考图强化',
         tagline: '从你最近学习的参考图归纳出的设计 DNA',
         references: oldRefs.map(function (u) { return u.id }),
         directive: ex.learned.notes.slice(-4).join('\n'),
@@ -3446,7 +3446,7 @@
     var win = el('div', { id: 'cds-window' })
     var titlebar = el('div', { className: 'cds-titlebar' }, [
       el('div', { className: 'cds-brand' }, [el('img', { src: API + '/icon.svg', alt: '' })]),
-      el('div', {}, [el('div', { className: 'cds-title', text: '封面设计助手' }), el('div', { className: 'cds-subtitle', text: '官方原画 · 专属风格 · 可编辑画布' })]),
+      el('div', {}, [el('div', { className: 'cds-title', text: '封面设计助手' }), el('div', { className: 'cds-subtitle', text: '官方原画 · 默认风格 · 可编辑画布' })]),
       el('div', { className: 'cds-spacer' }),
       el('button', { className: 'cds-btn sm primary', style: { marginRight: '4px' }, title: '用当前设置生成封面', onclick: function () {
         if (state.tab !== 'create') switchTab('create')

@@ -54,7 +54,7 @@ function promptText() {
   return [
     '【封面设计助手】',
     '- 用户要做视频封面/缩略图时，优先调用 cover_generate，而不是只用文字描述；一次可以生成 1-6 张不同版式。',
-    '- 默认使用「专属风格」：官方原画、大号思源宋体标题、标题与人物层叠、无红色横线、无编号/集数/年份/英文小字。',
+    '- 默认使用「默认风格」：官方原画、大号思源宋体标题、标题与人物层叠、无红色横线、无编号/集数/年份/英文小字。',
     '- 生成前先确认主标题和副标题；用户没给就保持空白，不要自动编造，需要时先问用户。同一批多张只用同一组标题，只变化版式。',
     '- 生成后把封面文件路径用 Markdown 图片展示；用户要改字、改大小、改位置时调用 cover_edit，不要重做整张。',
     '- 第一次生成报“没有 API Key”时，让用户打开工作室 → 设置 → 中转站 API，填 Base URL 和 Key 并点“测试连接”。',
@@ -234,7 +234,7 @@ export function apply(ctx, config) {
     try {
       toolCtx.effect(() => toolCtx.tools.register(defineTool({
         name: 'cover_generate',
-        description: '生成 1-6 张视频封面。支持 16:9 / 9:16 / 4:3 / 3:4 / 1:1 / 3:2 / 5:4 / 2.35:1 / 21:9 以及自定义宽高（如 5:2）。默认使用专属风格：官方原画、大号思源宋体、标题与人物层叠、无红线、无小字。会调用中转站生图 + 本地排版，返回封面文件路径。',
+        description: '生成 1-6 张视频封面。支持 16:9 / 9:16 / 4:3 / 3:4 / 1:1 / 3:2 / 5:4 / 2.35:1 / 21:9 以及自定义宽高（如 5:2）。默认使用默认风格：官方原画、大号思源宋体、标题与人物层叠、无红线、无小字。会调用中转站生图 + 本地排版，返回封面文件路径。',
         timeoutMs: 10 * 60 * 1000,
         parameters: {
           brief: { type: 'string', required: true, description: '视频主题/内容简介，越具体越好' },
@@ -530,7 +530,7 @@ export function apply(ctx, config) {
     try {
       toolCtx.effect(() => toolCtx.tools.register(defineTool({
         name: 'cover_get_style',
-        description: '读取「专属风格」的设计 DNA、原则、字体参数和可用风格 id。',
+        description: '读取「默认风格」的设计 DNA、原则、字体参数和可用风格 id。',
         parameters: {},
         output: textOutput('ok'),
         async execute() {
