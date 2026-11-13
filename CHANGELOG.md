@@ -1,5 +1,9 @@
 # 更新记录
 
+## 1.3.4
+
+- 更新检查增加 releases.atom 兜底：GitHub API 限流、latest 页面缓存滞后时，仍能拿到最新发布标签。
+
 ## 1.3.3
 
 - GitHub API 限流时，更新检查自动回退到 releases/latest 页面获取最新标签；仍失败时使用上次成功结果。
