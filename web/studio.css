@@ -61,6 +61,7 @@
 .cds-nav:hover { background: var(--dsw-alias-bg-layer-2, #F2F2EF); color: var(--dsw-alias-label-primary); }
 .cds-nav[data-on="1"] { background: color-mix(in srgb, var(--dsw-alias-brand-primary, #0169CC) 10%, transparent); color: var(--dsw-alias-brand-primary, #0169CC); font-weight: 600; }
 .cds-nav svg { width: 16px; height: 16px; flex: 0 0 16px; }
+.cds-navsep { height: 1px; flex: 0 0 1px; margin: 5px 8px; background: var(--dsw-alias-border-l1, rgba(0,0,0,.1)); }
 .cds-sidefoot { margin-top: auto; padding: 10px 8px 2px; border-top: 1px solid var(--dsw-alias-border-l1, rgba(0,0,0,.08)); display: flex; flex-direction: column; gap: 6px; }
 .cds-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 10.5px; line-height: 16px; color: var(--dsw-alias-label-tertiary, #7A8088); }
 .cds-dot { width: 6px; height: 6px; border-radius: 50%; background: #B8BEC6; flex: 0 0 6px; }

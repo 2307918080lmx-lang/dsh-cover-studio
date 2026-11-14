@@ -550,7 +550,6 @@
   function renderFoot() {
     if (!state.footEl || !state.settings) return
     clear(state.footEl)
-    state.footEl.appendChild(el('div', { className: 'cds-navgroup', style: { padding: '0 2px 5px' }, text: 'STATUS / 状态' }))
     var mm = state.settings.mainModel || {}
     var dshOk = mm.mode !== 'custom' ? !!(mm.dshLlmAvailable || mm.dshKeyAvailable) : !!mm.customKeySet
     var relay = state.settings.relays.find(function (r) { return r.id === state.settings.defaultRelayId }) || state.settings.relays[0]
@@ -558,7 +557,7 @@
     state.footEl.appendChild(el('div', { className: 'cds-chip' }, [el('span', { className: 'cds-dot ' + (relay && relay.keySet ? 'on' : 'warn') }), el('span', { text: relay ? relay.name + (relay.keySet ? '' : ' · 未填 Key') : '未配置中转站' })]))
     state.footEl.appendChild(el('div', { className: 'cds-chip' }, [el('span', { className: 'cds-dot on' }), el('span', { text: '默认风格已加载' })]))
     var upd = state.update || {}
-    var versionText = 'v' + (state.version || '1.4.0')
+    var versionText = 'v' + (state.version || '1.4.1')
     if (state.updateBusy) versionText += ' · 检查中…'
     else if (upd.hasUpdate) versionText += ' → v' + upd.latestVersion
     else if (upd.ok) versionText += ' · 已是最新'
@@ -683,36 +682,13 @@
     if (!state.navEl) return
     clear(state.navEl)
     var groups = [
-      {
-        label: 'WORKSPACE / 工作台',
-        items: [
-          ['create', 'spark', '开始创作'],
-          ['projects', 'grid', '我的封面'],
-          ['references', 'image', '参考图库'],
-          ['styles', 'layers', '风格库'],
-          ['trash', 'trash', '回收站'],
-        ],
-      },
-      {
-        label: 'HELP / 帮助',
-        items: [
-          ['usage', 'book', '使用说明'],
-          ['faq', 'help', '常见问题'],
-          ['changelog', 'history', '更新日志'],
-          ['feedback', 'feedback', '问题反馈'],
-        ],
-      },
-      {
-        label: 'ABOUT / 其他',
-        items: [
-          ['producer', 'user', '制作人'],
-          ['settings', 'gear', '设置'],
-        ],
-      },
+      [['create', 'spark', '开始创作'], ['projects', 'grid', '我的封面'], ['references', 'image', '参考图库'], ['styles', 'layers', '风格库'], ['trash', 'trash', '回收站']],
+      [['usage', 'book', '使用说明'], ['faq', 'help', '常见问题'], ['changelog', 'history', '更新日志'], ['feedback', 'feedback', '问题反馈']],
+      [['producer', 'user', '制作人'], ['settings', 'gear', '设置']],
     ]
-    groups.forEach(function (group) {
-      state.navEl.appendChild(el('div', { className: 'cds-navgroup', text: group.label }))
-      group.items.forEach(function (it) {
+    groups.forEach(function (items, index) {
+      if (index > 0) state.navEl.appendChild(el('div', { className: 'cds-navsep', 'aria-hidden': 'true' }))
+      items.forEach(function (it) {
         var btn = el('button', { className: 'cds-nav', 'data-on': state.tab === it[0] ? '1' : '0', onclick: function () {
           if (it[0] === 'feedback') { openFeedbackDialog(); return }
           switchTab(it[0])
@@ -3172,7 +3148,7 @@
       el('div', { className: 'cds-h2', style: { marginTop: 0 }, text: '关于这个项目' }),
       el('p', { text: '封面设计助手是一个安装在 DeepSeekHarness 里的本地插件：中转站生图、本地思源宋体排版、参考图学习、手动画布与抠图都在本机完成。安装、配置中转站和第一次使用说明见仓库 README。' }),
       el('div', { style: { display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '10px' } }, [
-        el('span', { className: 'cds-tag', text: '版本 v' + (state.version || '1.4.0') }),
+        el('span', { className: 'cds-tag', text: '版本 v' + (state.version || '1.4.1') }),
         el('span', { className: 'cds-tag', text: 'License: MIT' }),
         el('span', { className: 'cds-tag', text: '数据只存本机' }),
         el('span', { className: 'cds-tag', text: 'API Key 不回显' }),
