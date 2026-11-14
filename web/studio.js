@@ -8,6 +8,8 @@
   window.__COVER_STUDIO_STUDIO__ = true
 
   var API = '/dsh-cover-studio'
+  // 视频教程链接预留：填入后使用说明页会自动显示播放入口。
+  var TUTORIAL_VIDEO_URL = ''
   var state = {
     overlay: null,
     windowEl: null,
@@ -300,6 +302,9 @@
     align: '<svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h10M4 18h16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>',
     user: '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.6"/><path d="M4.5 20c.7-3.6 3.7-5.5 7.5-5.5s6.8 1.9 7.5 5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
     feedback: '<svg viewBox="0 0 24 24" fill="none"><path d="M4 5h16v11H9l-5 4V5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8 9h8M8 12h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+    book: '<svg viewBox="0 0 24 24" fill="none"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5v-16Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20M8 7h8M8 10.5h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+    help: '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M9.7 9a2.4 2.4 0 1 1 3.7 2c-.8.6-1.4 1.1-1.4 2.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M12 17h.01" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>',
+    history: '<svg viewBox="0 0 24 24" fill="none"><path d="M4 12a8 8 0 1 0 2.2-5.5M4 4v5h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 8v4.5l3 1.8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>',
   }
 
   // 制作人信息只读：后端是唯一数据源，界面不提供修改入口，也不写入 settings。
@@ -553,7 +558,7 @@
     state.footEl.appendChild(el('div', { className: 'cds-chip' }, [el('span', { className: 'cds-dot ' + (relay && relay.keySet ? 'on' : 'warn') }), el('span', { text: relay ? relay.name + (relay.keySet ? '' : ' · 未填 Key') : '未配置中转站' })]))
     state.footEl.appendChild(el('div', { className: 'cds-chip' }, [el('span', { className: 'cds-dot on' }), el('span', { text: '默认风格已加载' })]))
     var upd = state.update || {}
-    var versionText = 'v' + (state.version || '1.3.4')
+    var versionText = 'v' + (state.version || '1.4.0')
     if (state.updateBusy) versionText += ' · 检查中…'
     else if (upd.hasUpdate) versionText += ' → v' + upd.latestVersion
     else if (upd.ok) versionText += ' · 已是最新'
@@ -614,6 +619,7 @@
     ]
     var acts = [el('button', { className: 'cds-btn', onclick: close }, [el('span', { text: '关闭' })])]
     if (repoUrl) acts.push(el('a', { className: 'cds-btn', href: repoUrl, target: '_blank', rel: 'noopener noreferrer' }, [icon('external'), el('span', { text: 'GitHub 仓库' })]))
+    acts.push(el('button', { className: 'cds-btn', onclick: function () { close(); switchTab('changelog') } }, [icon('history'), el('span', { text: '更新日志' })]))
     acts.push(el('button', { className: 'cds-btn', onclick: function () { close(); openUpdateDialog(true) } }, [icon('refresh'), el('span', { text: '重新检查' })]))
     if (u.hasUpdate) acts.push(el('button', { className: 'cds-btn primary', onclick: function () { applyPluginUpdate(u, close) } }, [icon('download'), el('span', { text: '更新到 v' + u.latestVersion })]))
     var dlg = el('div', { className: 'cds-dialog', style: { maxWidth: '640px' } }, [
@@ -640,7 +646,7 @@
       state.update = { ok: true, currentVersion: state.version, latestVersion: state.version, hasUpdate: false, checkedAt: new Date().toISOString() }
       state.updateCheckedAt = Date.now()
       renderFoot()
-      showUpdateDone(data)
+      showUpdateDone(data, u)
     } catch (err) {
       state.updateBusy = false
       renderFoot()
@@ -648,16 +654,18 @@
     }
   }
 
-  function showUpdateDone(data) {
+  function showUpdateDone(data, info) {
     var modal = el('div', { className: 'cds-modal' })
     var close = function () { if (modal.parentNode) modal.parentNode.removeChild(modal) }
     var version = data.version || state.version || ''
     var npmWarn = data.npmInstall && !data.npmInstall.skipped && !data.npmInstall.ok
       ? '依赖安装失败：' + (data.npmInstall.error || '未知错误') + '。请在插件目录运行 npm install 后重启 DSH。'
       : ''
+    var notes = info && info.notes ? String(info.notes).replace(/^#{1,6}\s+/gm, '') : ''
     var dlg = el('div', { className: 'cds-dialog', style: { maxWidth: '620px' } }, [
       el('h3', { text: data.alreadyLatest ? '已是最新版本' : '更新完成 · v' + version }),
       el('p', { text: data.alreadyLatest ? '当前插件已经是最新版本。' : '插件源码已替换。关闭并重新打开 DSH 后，新版本才会完全生效。' }),
+      notes ? el('div', { className: 'cds-updatenotes', text: notes }) : null,
       npmWarn ? el('div', { className: 'cds-note', text: npmWarn }) : null,
       data.backupDir ? el('details', { className: 'cds-ridref', style: { marginTop: '10px' } }, [
         el('summary', { text: '查看更新前的备份位置' }),
@@ -674,23 +682,43 @@
   function renderNav() {
     if (!state.navEl) return
     clear(state.navEl)
-    state.navEl.appendChild(el('div', { className: 'cds-navgroup', text: 'WORKSPACE / 工作台' }))
-    var items = [
-      ['create', 'spark', '开始创作'],
-      ['projects', 'grid', '我的封面'],
-      ['references', 'image', '参考图库'],
-      ['styles', 'layers', '风格库'],
-      ['trash', 'trash', '回收站'],
-      ['producer', 'user', '制作人'],
-      ['feedback', 'feedback', '问题反馈'],
-      ['settings', 'gear', '设置'],
+    var groups = [
+      {
+        label: 'WORKSPACE / 工作台',
+        items: [
+          ['create', 'spark', '开始创作'],
+          ['projects', 'grid', '我的封面'],
+          ['references', 'image', '参考图库'],
+          ['styles', 'layers', '风格库'],
+          ['trash', 'trash', '回收站'],
+        ],
+      },
+      {
+        label: 'HELP / 帮助',
+        items: [
+          ['usage', 'book', '使用说明'],
+          ['faq', 'help', '常见问题'],
+          ['changelog', 'history', '更新日志'],
+          ['feedback', 'feedback', '问题反馈'],
+        ],
+      },
+      {
+        label: 'ABOUT / 其他',
+        items: [
+          ['producer', 'user', '制作人'],
+          ['settings', 'gear', '设置'],
+        ],
+      },
     ]
-    items.forEach(function (it) {
-      var btn = el('button', { className: 'cds-nav', 'data-on': state.tab === it[0] ? '1' : '0', onclick: function () {
-        if (it[0] === 'feedback') { openFeedbackDialog(); return }
-        switchTab(it[0])
-      } }, [icon(it[1]), el('span', { text: it[2] })])
-      state.navEl.appendChild(btn)
+    groups.forEach(function (group) {
+      state.navEl.appendChild(el('div', { className: 'cds-navgroup', text: group.label }))
+      group.items.forEach(function (it) {
+        var btn = el('button', { className: 'cds-nav', 'data-on': state.tab === it[0] ? '1' : '0', onclick: function () {
+          if (it[0] === 'feedback') { openFeedbackDialog(); return }
+          switchTab(it[0])
+        } }, [icon(it[1]), el('span', { text: it[2] })])
+        state.navEl.appendChild(btn)
+      })
     })
   }
 
@@ -715,6 +743,9 @@
     if (page === 'references') return renderReferencesPage()
     if (page === 'styles') return renderStylesPage()
     if (page === 'trash') return renderTrashPage()
+    if (page === 'usage') return renderUsagePage()
+    if (page === 'faq') return renderFaqPage()
+    if (page === 'changelog') return renderChangelogPage()
     if (page === 'producer') return renderProducerPage()
     if (page === 'settings') return renderSettingsPage()
     return renderCreatePage()
@@ -2890,6 +2921,225 @@
     state.windowEl.appendChild(modal)
   }
 
+  function helpStep(num, title, lines, actions) {
+    return el('div', { className: 'cds-helpstep' }, [
+      el('div', { className: 'cds-helpnum', text: String(num).padStart(2, '0') }),
+      el('div', { className: 'cds-helpbody' }, [
+        el('div', { className: 'cds-h2', style: { margin: '0 0 5px' }, text: title }),
+      ].concat((lines || []).map(function (line) { return el('p', { className: 'cds-helptext', text: line }) })).concat([
+        actions && actions.length ? el('div', { className: 'cds-helpacts' }, actions) : null,
+      ])),
+    ])
+  }
+
+  function renderUsagePage() {
+    clear(state.mainEl)
+    var page = el('div', { className: 'cds-page' })
+    page.appendChild(pageHead('使用说明', '从配置中转站到导出成品，按顺序走一遍即可。', el('button', { className: 'cds-btn', onclick: function () { switchTab('faq') } }, [icon('help'), el('span', { text: '常见问题' })])))
+    var videoUrl = safeHttpUrl(TUTORIAL_VIDEO_URL)
+    page.appendChild(el('div', { className: 'cds-panel pad cds-videocard' }, [
+      el('div', { className: 'cds-h2', style: { marginTop: 0 }, text: '视频教程' }),
+      videoUrl
+        ? el('a', { className: 'cds-btn primary', href: videoUrl, target: '_blank', rel: 'noopener noreferrer' }, [icon('play'), el('span', { text: '观看视频教程' })])
+        : el('div', { className: 'cds-videoplaceholder' }, [
+          el('span', { className: 'cds-videoicon' }, [icon('play')]),
+          el('div', {}, [
+            el('div', { className: 'cds-videotitle', text: '视频教程位已预留' }),
+            el('div', { className: 'cds-hint', text: '制作人正在录制，发布后这里会自动出现播放入口。' }),
+          ]),
+        ]),
+    ]))
+    var steps = el('div', { className: 'cds-helpsteps' })
+    steps.appendChild(helpStep(1, '配置中转站', [
+      '打开「设置 → 中转站 API」，Base URL 填 API 接口地址，不是控制台网页；一般以 /v1 结尾。',
+      '填写自己的 API Key，点「测试连接」；正常会显示发现 N 个模型。',
+      '点「读取模型」，选中默认生图模型，再保存设置。',
+    ], [el('button', { className: 'cds-btn sm primary', onclick: function () { switchTab('settings') } }, [icon('gear'), el('span', { text: '去配置中转站' })])]))
+    steps.appendChild(helpStep(2, '配置主模型', [
+      '默认「跟随 DSH」即可，不需要单独填 Key。',
+      '点「读取 DSH 模型列表」，再点模型名选中，最后保存。',
+      '识图/参考分析需要支持视觉的模型 Key；只有生图模型的中转站不能做参考封面拆解。',
+    ], [el('button', { className: 'cds-btn sm', onclick: function () { switchTab('settings') } }, [icon('spark'), el('span', { text: '打开主模型设置' })])]))
+    steps.appendChild(helpStep(3, '开始创作', [
+      '在「开始创作」写视频主题，再填主标题和副标题；标题不会自动编造。',
+      '选择风格、生成张数和画幅，点「生成 N 张封面」。',
+      '生成完成后可以逐张编辑、换画幅或导出。',
+    ], [el('button', { className: 'cds-btn sm', onclick: function () { switchTab('create') } }, [icon('spark'), el('span', { text: '去开始创作' })])]))
+    steps.appendChild(helpStep(4, '参考图、复刻和模板', [
+      '参考图库可以上传底图、参考封面或文档，让 AI 读取构图和内容。',
+      '风格库 → 分区风格库 → 封面卡片「复刻这张」，会单独拆解一张封面的版式、字体和配色。',
+      '参考图库卡片「拆成模板」会识别文字并生成无字背景；模板编辑器里可以「AI 重绘 / 换人物」。',
+    ], [
+      el('button', { className: 'cds-btn sm', onclick: function () { switchTab('references') } }, [icon('image'), el('span', { text: '打开参考图库' })]),
+      el('button', { className: 'cds-btn sm', onclick: function () { switchTab('styles') } }, [icon('layers'), el('span', { text: '打开风格库' })]),
+    ]))
+    steps.appendChild(helpStep(5, '编辑、改比例和导出', [
+      '点封面上的「编辑」进入画布：改字、拖动图层、抠图、加形状和批注。',
+      '「保持内容改比例」会保留原图内容，扩图或本地补齐到新画幅。',
+      '「导出」保存 PNG + JPG；也可以在设置里指定自动保存目录。',
+    ], []))
+    steps.appendChild(helpStep(6, '更新与反馈', [
+      '左下角版本号会显示「已是最新」或「可更新」；点一下即可查看更新内容并更新。',
+      '更新后需要重启 DSH；项目、参考图、Key 不会丢。',
+      '遇到问题先看常见问题；解决不了就提交飞书问题反馈，附上操作步骤和截图。',
+    ], [
+      el('button', { className: 'cds-btn sm', onclick: function () { switchTab('changelog') } }, [icon('history'), el('span', { text: '查看更新日志' })]),
+      el('button', { className: 'cds-btn sm', onclick: function () { openFeedbackDialog() } }, [icon('feedback'), el('span', { text: '问题反馈' })]),
+    ]))
+    page.appendChild(steps)
+    page.appendChild(el('div', { className: 'cds-panel pad cds-helpend' }, [
+      el('div', { className: 'cds-h2', style: { marginTop: 0 }, text: '还有不懂的？' }),
+      el('p', { className: 'cds-helptext', text: '先看常见问题；如果仍然解决不了，直接提交飞书表单，制作人会在后台看到。' }),
+      el('div', { className: 'cds-helpacts' }, [
+        el('button', { className: 'cds-btn sm', onclick: function () { switchTab('faq') } }, [icon('help'), el('span', { text: '打开常见问题' })]),
+        el('button', { className: 'cds-btn sm primary', onclick: function () { openFeedbackDialog() } }, [icon('feedback'), el('span', { text: '填写问题反馈' })]),
+      ]),
+    ]))
+    state.mainEl.appendChild(page)
+  }
+
+  function renderFaqPage() {
+    clear(state.mainEl)
+    var page = el('div', { className: 'cds-page' })
+    page.appendChild(pageHead('常见问题', '先在这里找答案；解决不了再提交反馈。', el('button', { className: 'cds-btn primary', onclick: function () { openFeedbackDialog() } }, [icon('feedback'), el('span', { text: '问题反馈' })])))
+    var faqs = [
+      {
+        q: '生成失败，提示没有 API Key / 没有可用模型',
+        a: ['设置 → 中转站 API 填写 Base URL、API Key 和模型，点「测试连接」；正常会显示发现 N 个模型。', '如果没有模型，点「读取模型」；仍为空就把模型名同时填进「模型（逗号分隔）」和「默认模型」，保存后再生成。'],
+        action: { label: '去配置中转站', run: function () { switchTab('settings') } },
+      },
+      {
+        q: '测试连接显示 200，但模型列表是 0 个 / 生成 404',
+        a: ['Base URL 很可能填成了中转站控制台网页（例如 .../dashboard）。', '改成 API 接口地址，通常以 /v1 结尾，例如 https://api.example.com/v1。插件会自动纠正常见控制台地址，但最好直接填对。'],
+        action: { label: '去改 Base URL', run: function () { switchTab('settings') } },
+      },
+      {
+        q: '主模型不能跟随 DSH，或者选不到模型',
+        a: ['设置 → 主模型 → 跟随 DSH → 点「读取 DSH 模型列表」。', '列表出现后直接点模型名选中，再点「保存设置」。跟随 DSH 不需要单独填 Key。', '如果切到「自定义 API」但没有填 Key，生成时会自动回退到 DSH。'],
+        action: { label: '打开主模型设置', run: function () { switchTab('settings') } },
+      },
+      {
+        q: '中转站模型填了，保存后又不见了',
+        a: ['请先更新到 1.3.1 或更高版本；旧版保存时会丢掉单独填写的默认模型。', '更新后点「读取模型」会持久化；也可以把模型名同时填进「模型（逗号分隔）」和「默认模型」再保存。'],
+        action: { label: '查看更新日志', run: function () { switchTab('changelog') } },
+      },
+      {
+        q: '分析参考封面 / 拆模板 / 风格学习提示没有识图密钥',
+        a: ['这些功能需要支持视觉的模型，不是生图模型。只有图片模型的中转站无法完成识图。', '在设置里给主模型填写支持视觉的 API Key，或把 DSH 配置成可用的视觉模型；也可以用支持视觉的中转站作为自定义主模型。'],
+        action: { label: '打开设置', run: function () { switchTab('settings') } },
+      },
+      {
+        q: '更新后界面没有变化',
+        a: ['更新器只替换磁盘上的源码，运行中的 DSH 仍在使用旧代码。', '关闭并重新打开 DSH（或在 DSH 里点重启）后生效；项目、参考图、Key 不需要重新配置。'],
+        action: { label: '查看当前版本', run: function () { openUpdateDialog(true) } },
+      },
+      {
+        q: '检查更新失败 / 更新下载失败',
+        a: ['先确认网络能访问 GitHub；插件会优先走 Release API，限流时回退到 releases 页面和 Atom 发布流。', '仍然失败可以打开 GitHub 仓库手动下载最新 Release，或稍后点左下角版本号重新检查。'],
+        action: { label: '打开 GitHub Releases', run: function () { try { window.open((state.repoUrl || 'https://github.com/2307918080lmx-lang/dsh-cover-studio') + '/releases', '_blank', 'noopener,noreferrer') } catch (e) {} } },
+      },
+      {
+        q: '抠图很慢或者不可用',
+        a: ['运行 npm run fetch-model 下载 Silueta 本地分割模型（约 43MB）。', '没有模型时会自动回退到本地边缘算法；也可以在编辑器里用画笔抠图。'],
+      },
+      {
+        q: '字体不对 / 标题字体没有生效',
+        a: ['设置 → 标题宋体字体文件 / 副标题无衬线字体文件，填本机字体路径。', '保存后会重新加载字体；默认标题优先使用思源宋体 Heavy，找不到时用系统宋体。'],
+        action: { label: '打开字体设置', run: function () { switchTab('settings') } },
+      },
+      {
+        q: '项目、参考图、API Key 存在哪里？重装会丢吗',
+        a: ['项目、参考图、风格卡和回收站都在本机 DSH 数据目录；API Key 优先保存在 DSH credentials，其次本机 secrets 文件。', '更新插件不会动这些数据；重装插件前备份 DSH 数据目录即可。'],
+      },
+      {
+        q: '怎么只换画幅，保留原图内容',
+        a: ['在封面卡片或结果上点「保持内容改比例」，选择目标画幅和扩图模式。', '原图会保留，完成后并排展示原图和新图；中转站失败会自动转本地兜底。'],
+      },
+      {
+        q: '问题反馈要写什么',
+        a: ['写清楚操作步骤、实际现象、期望结果；如果有报错，把报错文字和截图一起上传。', '不要上传 API Key、密码或私人素材；反馈会进入制作人的飞书表单。'],
+        action: { label: '填写飞书反馈', run: function () { openFeedbackDialog() } },
+      },
+    ]
+    var list = el('div', { className: 'cds-faqls' })
+    faqs.forEach(function (item, index) {
+      var body = el('div', { className: 'cds-faqbody' }, (item.a || []).map(function (text) { return el('p', { text: text }) }))
+      if (item.action) body.appendChild(el('button', { className: 'cds-btn sm', onclick: item.action.run }, [el('span', { text: item.action.label })]))
+      list.appendChild(el('details', { className: 'cds-faqitem' }, [
+        el('summary', {}, [
+          el('span', { className: 'cds-faqnum', text: String(index + 1).padStart(2, '0') }),
+          el('span', { className: 'cds-faqq', text: item.q }),
+        ]),
+        body,
+      ]))
+    })
+    page.appendChild(el('div', { className: 'cds-panel pad', style: { padding: '8px 12px' } }, [list]))
+    page.appendChild(el('div', { className: 'cds-panel pad cds-faqcta' }, [
+      el('div', { className: 'cds-faqctatitle', text: '还没解决？' }),
+      el('p', { className: 'cds-helptext', text: '把操作步骤、实际现象和截图填到飞书表单，制作人会在后台统一处理。插件不会自动上传你的项目或 Key。' }),
+      el('div', { className: 'cds-helpacts' }, [
+        el('button', { className: 'cds-btn primary', onclick: function () { openFeedbackDialog() } }, [icon('feedback'), el('span', { text: '打开飞书问题反馈' })]),
+        el('button', { className: 'cds-btn', onclick: function () { switchTab('usage') } }, [icon('book'), el('span', { text: '看使用说明' })]),
+      ]),
+    ]))
+    state.mainEl.appendChild(page)
+  }
+
+  function parseChangelogText(text) {
+    var wrap = el('div', { className: 'cds-changelog' })
+    var list = null
+    String(text || '').split(/\r?\n/).forEach(function (line) {
+      var t = line.trim()
+      if (!t) { list = null; return }
+      var plain = t.replace(/\*\*(.+?)\*\*/g, '$1')
+      var h = /^(#{1,4})\s+(.+)$/.exec(plain)
+      if (h) {
+        list = null
+        var level = Math.min(4, h[1].length)
+        wrap.appendChild(el(level === 1 ? 'h1' : (level === 2 ? 'h2' : 'h3'), { text: h[2] }))
+        return
+      }
+      var bullet = /^[-*]\s+(.+)$/.exec(plain)
+      if (bullet) {
+        if (!list) { list = el('ul'); wrap.appendChild(list) }
+        list.appendChild(el('li', { text: bullet[1] }))
+        return
+      }
+      list = null
+      wrap.appendChild(el('p', { text: plain }))
+    })
+    return wrap
+  }
+
+  function renderChangelogPage() {
+    clear(state.mainEl)
+    var page = el('div', { className: 'cds-page' })
+    page.appendChild(pageHead('更新日志', '每次发布的优化、修复都会记录在这里。', el('button', { className: 'cds-btn', onclick: function () { openUpdateDialog(true) } }, [icon('refresh'), el('span', { text: '检查更新' })])))
+    var head = el('div', { className: 'cds-panel pad cds-changeloghead' }, [
+      el('div', { className: 'cds-h2', style: { marginTop: 0, textTransform: 'none' }, text: '当前版本 v' + (state.version || '?') }),
+      el('div', { className: 'cds-hint', text: '插件会检查 GitHub 最新 Release；有新版本时，左下角版本号会显示「可更新」。' }),
+      el('div', { className: 'cds-helpacts' }, [
+        el('button', { className: 'cds-btn sm primary', onclick: function () { openUpdateDialog(true) } }, [icon('download'), el('span', { text: '检查并更新' })]),
+        el('a', { className: 'cds-btn sm', href: (safeHttpUrl(state.repoUrl) || 'https://github.com/2307918080lmx-lang/dsh-cover-studio') + '/releases', target: '_blank', rel: 'noopener noreferrer' }, [icon('external'), el('span', { text: 'GitHub Releases' })]),
+      ]),
+    ])
+    page.appendChild(head)
+    var body = el('div', { className: 'cds-panel pad', style: { marginTop: '14px' } }, [el('div', { className: 'cds-loading' }, [el('span', { className: 'cds-spinner' }), el('span', { text: '正在读取更新日志…' })])])
+    page.appendChild(body)
+    state.mainEl.appendChild(page)
+    api('/changelog').then(function (data) {
+      clear(body)
+      if (!data.text) {
+        body.appendChild(el('div', { className: 'cds-note', text: '没有找到更新日志文件。' }))
+        return
+      }
+      body.appendChild(parseChangelogText(data.text))
+    }).catch(function (err) {
+      clear(body)
+      body.appendChild(el('div', { className: 'cds-note', text: '读取更新日志失败：' + err.message }))
+    })
+  }
+
   function renderProducerPage() {
     clear(state.mainEl)
     var page = el('div', { className: 'cds-page' })
@@ -2922,7 +3172,7 @@
       el('div', { className: 'cds-h2', style: { marginTop: 0 }, text: '关于这个项目' }),
       el('p', { text: '封面设计助手是一个安装在 DeepSeekHarness 里的本地插件：中转站生图、本地思源宋体排版、参考图学习、手动画布与抠图都在本机完成。安装、配置中转站和第一次使用说明见仓库 README。' }),
       el('div', { style: { display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '10px' } }, [
-        el('span', { className: 'cds-tag', text: '版本 v' + (state.version || '1.3.4') }),
+        el('span', { className: 'cds-tag', text: '版本 v' + (state.version || '1.4.0') }),
         el('span', { className: 'cds-tag', text: 'License: MIT' }),
         el('span', { className: 'cds-tag', text: '数据只存本机' }),
         el('span', { className: 'cds-tag', text: 'API Key 不回显' }),

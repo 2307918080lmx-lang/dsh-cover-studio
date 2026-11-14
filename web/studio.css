@@ -49,7 +49,10 @@
   width: 196px; flex: 0 0 196px; padding: 12px 10px; display: flex; flex-direction: column; gap: 3px;
   border-right: 1px solid var(--dsw-alias-border-l1, rgba(0,0,0,.1));
   background: var(--dsw-alias-bg-layer-1, #fff);
+  overflow-y: auto; min-height: 0;
 }
+.cds-sidebar::-webkit-scrollbar { width: 7px; }
+.cds-sidebar::-webkit-scrollbar-thumb { background: rgba(120,125,132,.24); border-radius: 7px; }
 .cds-nav {
   display: flex; align-items: center; gap: 10px; width: 100%; height: 36px; padding: 0 10px;
   border: 0; border-radius: 9px; background: transparent; cursor: pointer;
@@ -926,3 +929,38 @@
 
 /* 开源版内置默认风格使用通用 SVG 预览，不需要额外文字覆盖。 */
 .cds-exclusive .cds-ex-preview::after { display: none; }
+
+/* 使用说明 / 常见问题 / 更新日志 */
+.cds-videocard { margin-bottom: 14px; }
+.cds-videoplaceholder { display: flex; align-items: center; gap: 12px; margin-top: 10px; padding: 18px; border: 1px dashed var(--dsw-alias-border-l2, rgba(0,0,0,.2)); border-radius: 11px; background: var(--dsw-alias-bg-layer-2, #F2F2EF); }
+.cds-videoicon { width: 42px; height: 42px; flex: 0 0 42px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--dsw-alias-brand-primary, #0169CC) 12%, transparent); color: var(--dsw-alias-brand-primary, #0169CC); }
+.cds-videoicon svg { width: 20px; height: 20px; }
+.cds-videotitle { font-size: 13px; font-weight: 700; color: var(--dsw-alias-label-primary, #1A1D22); }
+.cds-helpsteps { display: flex; flex-direction: column; gap: 10px; }
+.cds-helpstep { display: grid; grid-template-columns: 42px 1fr; gap: 12px; padding: 14px; border: 1px solid var(--dsw-alias-border-l1, rgba(0,0,0,.1)); border-radius: 11px; background: var(--dsw-alias-bg-layer-1, #fff); }
+.cds-helpnum { width: 36px; height: 36px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--dsw-alias-brand-primary, #0169CC) 9%, transparent); color: var(--dsw-alias-brand-primary, #0169CC); font-weight: 800; font-size: 12px; font-family: ui-monospace, Consolas, monospace; }
+.cds-helptext { margin: 0 0 5px; font-size: 11.5px; line-height: 1.65; color: var(--dsw-alias-label-secondary, #5C6269); }
+.cds-helpacts { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 8px; }
+.cds-helpend { margin-top: 14px; }
+.cds-faqls { display: flex; flex-direction: column; gap: 7px; }
+.cds-faqitem { border: 1px solid var(--dsw-alias-border-l1, rgba(0,0,0,.1)); border-radius: 9px; background: var(--dsw-alias-bg-base, #fff); overflow: hidden; }
+.cds-faqitem[open] { border-color: color-mix(in srgb, var(--dsw-alias-brand-primary, #0169CC) 32%, var(--dsw-alias-border-l1, rgba(0,0,0,.1))); }
+.cds-faqitem summary { display: flex; align-items: flex-start; gap: 9px; padding: 11px 13px; cursor: pointer; list-style: none; color: var(--dsw-alias-label-primary, #1A1D22); font-size: 12.5px; font-weight: 600; line-height: 1.5; }
+.cds-faqitem summary::-webkit-details-marker { display: none; }
+.cds-faqitem summary::after { content: '+'; margin-left: auto; color: var(--dsw-alias-label-tertiary, #7A8088); font-size: 16px; line-height: 1; }
+.cds-faqitem[open] summary::after { content: '−'; color: var(--dsw-alias-brand-primary, #0169CC); }
+.cds-faqnum { flex: 0 0 22px; color: var(--dsw-alias-label-tertiary, #7A8088); font-family: ui-monospace, Consolas, monospace; font-size: 10px; padding-top: 2px; }
+.cds-faqq { flex: 1; }
+.cds-faqbody { padding: 0 13px 12px 44px; }
+.cds-faqbody p { margin: 0 0 6px; font-size: 11.5px; line-height: 1.65; color: var(--dsw-alias-label-secondary, #5C6269); }
+.cds-faqcta { margin-top: 14px; border-color: color-mix(in srgb, var(--dsw-alias-brand-primary, #0169CC) 22%, var(--dsw-alias-border-l1, rgba(0,0,0,.1))); }
+.cds-faqctatitle { font-size: 15px; font-weight: 700; color: var(--dsw-alias-label-primary, #1A1D22); margin-bottom: 5px; }
+.cds-changeloghead { display: flex; flex-direction: column; gap: 6px; }
+.cds-changelog { font-size: 11.5px; line-height: 1.7; color: var(--dsw-alias-label-secondary, #5C6269); }
+.cds-changelog h1 { margin: 0 0 12px; font-size: 20px; color: var(--dsw-alias-label-primary, #1A1D22); }
+.cds-changelog h2 { margin: 18px 0 8px; padding-top: 12px; border-top: 1px solid var(--dsw-alias-border-l1, rgba(0,0,0,.1)); font-size: 15px; color: var(--dsw-alias-label-primary, #1A1D22); }
+.cds-changelog h2:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+.cds-changelog h3 { margin: 12px 0 6px; font-size: 13px; color: var(--dsw-alias-label-primary, #1A1D22); }
+.cds-changelog p { margin: 0 0 7px; }
+.cds-changelog ul { margin: 4px 0 10px; padding-left: 19px; }
+.cds-changelog li { margin-bottom: 4px; }
