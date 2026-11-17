@@ -8,8 +8,9 @@
   window.__COVER_STUDIO_STUDIO__ = true
 
   var API = '/dsh-cover-studio'
-  // 视频教程链接预留：填入后使用说明页会自动显示播放入口。
-  var TUTORIAL_VIDEO_URL = ''
+  // 视频教程链接：使用说明页会显示可点击的教程卡片。
+  var TUTORIAL_VIDEO_URL = 'https://b23.tv/RovdSyM'
+  var TUTORIAL_VIDEO_BV = 'BV1Y1sg6UEPU'
   var state = {
     overlay: null,
     windowEl: null,
@@ -557,7 +558,7 @@
     state.footEl.appendChild(el('div', { className: 'cds-chip' }, [el('span', { className: 'cds-dot ' + (relay && relay.keySet ? 'on' : 'warn') }), el('span', { text: relay ? relay.name + (relay.keySet ? '' : ' · 未填 Key') : '未配置中转站' })]))
     state.footEl.appendChild(el('div', { className: 'cds-chip' }, [el('span', { className: 'cds-dot on' }), el('span', { text: '默认风格已加载' })]))
     var upd = state.update || {}
-    var versionText = 'v' + (state.version || '1.4.1')
+    var versionText = 'v' + (state.version || '1.4.2')
     if (state.updateBusy) versionText += ' · 检查中…'
     else if (upd.hasUpdate) versionText += ' → v' + upd.latestVersion
     else if (upd.ok) versionText += ' · 已是最新'
@@ -2916,7 +2917,14 @@
     page.appendChild(el('div', { className: 'cds-panel pad cds-videocard' }, [
       el('div', { className: 'cds-h2', style: { marginTop: 0 }, text: '视频教程' }),
       videoUrl
-        ? el('a', { className: 'cds-btn primary', href: videoUrl, target: '_blank', rel: 'noopener noreferrer' }, [icon('play'), el('span', { text: '观看视频教程' })])
+        ? el('a', { className: 'cds-videolink', href: videoUrl, target: '_blank', rel: 'noopener noreferrer', title: '在 B 站打开视频教程' }, [
+          el('span', { className: 'cds-videoicon' }, [icon('play')]),
+          el('div', { className: 'cds-videobody' }, [
+            el('div', { className: 'cds-videotitle', text: '封面设计助手视频教程' }),
+            el('div', { className: 'cds-videohint', text: 'B 站 · ' + TUTORIAL_VIDEO_BV + ' · 点击一键直达' }),
+          ]),
+          el('span', { className: 'cds-videoarrow', text: '→' }),
+        ])
         : el('div', { className: 'cds-videoplaceholder' }, [
           el('span', { className: 'cds-videoicon' }, [icon('play')]),
           el('div', {}, [
@@ -3148,7 +3156,7 @@
       el('div', { className: 'cds-h2', style: { marginTop: 0 }, text: '关于这个项目' }),
       el('p', { text: '封面设计助手是一个安装在 DeepSeekHarness 里的本地插件：中转站生图、本地思源宋体排版、参考图学习、手动画布与抠图都在本机完成。安装、配置中转站和第一次使用说明见仓库 README。' }),
       el('div', { style: { display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '10px' } }, [
-        el('span', { className: 'cds-tag', text: '版本 v' + (state.version || '1.4.1') }),
+        el('span', { className: 'cds-tag', text: '版本 v' + (state.version || '1.4.2') }),
         el('span', { className: 'cds-tag', text: 'License: MIT' }),
         el('span', { className: 'cds-tag', text: '数据只存本机' }),
         el('span', { className: 'cds-tag', text: 'API Key 不回显' }),

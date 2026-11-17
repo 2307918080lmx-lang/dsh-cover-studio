@@ -933,6 +933,13 @@
 
 /* 使用说明 / 常见问题 / 更新日志 */
 .cds-videocard { margin-bottom: 14px; }
+.cds-videolink { display: flex; align-items: center; gap: 12px; margin-top: 10px; padding: 14px 16px; border: 1px solid color-mix(in srgb, var(--dsw-alias-brand-primary, #0169CC) 30%, var(--dsw-alias-border-l1, rgba(0,0,0,.1))); border-radius: 11px; background: color-mix(in srgb, var(--dsw-alias-brand-primary, #0169CC) 6%, var(--dsw-alias-bg-layer-1, #fff)); color: var(--dsw-alias-label-primary, #1A1D22); text-decoration: none; transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease; }
+.cds-videolink:hover { border-color: var(--dsw-alias-brand-primary, #0169CC); box-shadow: 0 6px 18px rgba(0,0,0,.08); }
+.cds-videolink:active { transform: translateY(1px); }
+.cds-videolink .cds-videoicon { background: var(--dsw-alias-brand-primary, #0169CC); color: var(--cds-accent-contrast, #fff); }
+.cds-videobody { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.cds-videohint { font-size: 11px; line-height: 1.5; color: var(--dsw-alias-label-secondary, #5C6269); }
+.cds-videoarrow { color: var(--dsw-alias-brand-primary, #0169CC); font-size: 18px; }
 .cds-videoplaceholder { display: flex; align-items: center; gap: 12px; margin-top: 10px; padding: 18px; border: 1px dashed var(--dsw-alias-border-l2, rgba(0,0,0,.2)); border-radius: 11px; background: var(--dsw-alias-bg-layer-2, #F2F2EF); }
 .cds-videoicon { width: 42px; height: 42px; flex: 0 0 42px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--dsw-alias-brand-primary, #0169CC) 12%, transparent); color: var(--dsw-alias-brand-primary, #0169CC); }
 .cds-videoicon svg { width: 20px; height: 20px; }
